@@ -1,0 +1,177 @@
+---
+title: "Homework 1"
+author: "Felix Wöstmann"
+date: "October 19, 2022"
+output:
+  html_document: default
+  pdf_document: default
+subtitle: Statistical programing
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(pander)
+#setwd("c:/blabla")
+
+```
+
+
+Complete the task listed below. The main thing you have to submit is an Rmd file with the code you have written. The R file should have ".Rmd" extension and should be suitable structured (by exercises) with comments indicating exercises (1, 2, 4.a, …) and additional explanations where necessary or in doubt. As said before all can be adequately presented in markdown or with Sweave. Make sure that the file includes code for loading any necessary packages. The file should execute in R without any errors. Try it in a new (empty) R session before submitting. Make sure you have also attached any input files you have used (e.g. in Homework 1 in exercises 4 and 5). Include only the outputs that where this is explicitly written.
+
+1. Create a numeric vector of length 10 and extract from it elements on places 3 through 5. Do some basic calculus (+, - , *, /) on the whole vector and on parts of the vector.
+```{r Task1}
+numeric_vector<-c(1,2,3,4,5,6,7,8,9,10)
+elements_three_to_five<-numeric_vector[3:5]
+# subtract 1 from each element
+subtract_1<-elements_three_to_five - 1
+# multiply by 10
+multiplyy_by_10<-elements_three_to_five*10
+# divide last two elements by 5
+divide_by_5<-elements_three_to_five[2:3]/5
+```
+
+
+
+
+2. Create a matrix with 5 rows and 3 columns. Multiply it (matrix multiplication) with itself. Compute row and column sums on this matrix. Extract a 2x3 matrix from the obtained matrix (you select the rows and columns). Hint: google "How to Multiply Matrices" if you're not sure what we'are talking about.
+
+
+```{r Task2}
+mtrx<-matrix(1:15, nrow = 5, ncol = 3)
+mtrx_transposed<-t(mtrx)
+mtrx_product<-mtrx %*% mtrx_transposed
+rowSums<-rowSums(mtrx_product)
+colSums<-colSums(mtrx_product)
+sub_mtrx<-mtrx_product[c(2,3),c(1,2,3)]
+```
+
+3. Create at least 3 vectors of the same length (at least 5). At least one should be numeric, at least one character and at least one factor. Join them in a data frame. Write this data frame to a text file that you can read (try it!) with a spreadsheet program (MS Excel, OO.org Calc, …). 
+```{r Task3}
+vector1 <- 1:10
+vector2 <-c("George Washington", "John Adams", "Thomas Jefferson", "James Madison", 
+"James Monroe", "John Quincy Adams", "Andrew Jackson", "Martin Van Buren", 
+"William Henry Harrison", "John Tyler")
+vector3 <- factor(c("Male", "Male", "Male", "Female", "Female", "Female", "Female", "Male", "Male", "Female"))
+mydata <- data.frame(vector1, vector2, vector3)
+write.table(mydata, file = "save_data_exercise_3.tsv", row.names = FALSE, col.names = FALSE, quote = TRUE,sep="\t")
+```
+
+\pagebreak
+
+4. For this task you will use data of ESS survey round 9 (2018) for the country that was assigned to you at data analytics course. The data can be obtained from the web page of European Social Survey: <https://ess-search.nsd.no/>
+
+------------------------------------------------------------------------------------------------------------
+       Variable                Variable code              Data manipulation       
+--------------------- ---------------------------- -------------------------------------------------------------
+Opneness to change   ipcrtiv, ipgdtim, impdiff,        Recode the variables so that  higher values will indicate   higher level of similarity  
+                     ipadvnt, impfun, impfree          (i.e., revert the scale). 
+
+        Sector                    tporgwk                 Recore into two values:  “public sector” and    “private sector”          
+
+ Political oreintation            lrscale                 Recode values 0-3 into  “Left”, values 4-6 into   “Middle”, and    values 7-10 into “Right”.         
+                                                              
+   Type of contract               wrkctra 
+
+          Age                       agea            
+--------------------- --------------------- --------------------------------------------------------
+
+
++ a. Read the data into R and check that it is stored as data frame
+```{r Task4a}
+# Because the original file containg all countries was too big to hand in over moodle (over 10MB even after being zipped)
+# I saved tha DatFrame resulting from ess_round_9<-ess_round_9[ess_round_9$cntry=='FR',] as a file and uploaded it
+ess_round_9<-read.table('ESS9e03_1_FR.csv',sep=',',header=T)
+# To save memory, time, money and patience: delete all data which is not France
+ess_round_9<-ess_round_9[ess_round_9$cntry=='FR',]
+```
++ b. Make sure that variables are treated appropriately according to their measurement level and that the levels of the ordinal (and nominal) variable(s) are in the correct (suitable) order.
+
+```{r Task4b}
+# Store names of the vars to access them later more easily
+opennessToChangeConpundVars<-c('ipcrtiv' , 'ipgdtim', 'impdiff','ipadvnt', 'impfun', 'impfree')
+ess_round_9$tporgwk<-as.factor(ess_round_9$tporgw)
+ess_round_9$wrkctra<-as.factor(ess_round_9$wrkctra)
+str(ess_round_9[,c(opennessToChangeConpundVars,'tporgwk','lrscale','wrkctra','agea')])
+```
+
++ c. Recode variables accoring to data manupulation column in table above. 
+
+```{r,message=FALSE}
+# please be silent, thanks
+library(dplyr)
+```
+```{r Task4c}
+# recode tporgwk
+
+ess_round_9$tporgwk<-recode(ess_round_9$tporgwk,`1`='1',`2`='1',`3`='1',`4`='2',`5`='2',`6`='2',`66`='NA',`77`='NA',`88`='NA')
+# recode lrscale using a mapping function
+recode_lrscale_values<-function(x) {
+  if(x>=0 && x<=3) {
+    return ('Left')
+  }
+  if(x>=4 && x<=6) {
+    return ('Middle')
+  }
+  if(x>=7 && x<=10) {
+    return ('Right')
+  }
+  return(NA)
+}
+ess_round_9$lrscale<-lapply(ess_round_9$lrscale,  recode_lrscale_values)
+ess_round_9$lrscale<-as.factor(unlist(ess_round_9$lrscale,recursive = FALSE))
+# recode compund variable of openness to change
+recode_openness_to_change_compund_values<-function(x) {
+  if(x==1) return (6)
+  if(x==2) return (5)
+  if(x==3) return (4)
+  if(x==4) return (3)
+  if(x==5) return (2)
+  if(x==6) return (1)
+  return(NaN)
+}
+ess_round_9$impdiff<-unlist(lapply(ess_round_9$impdiff,  recode_openness_to_change_compund_values),recursive=FALSE)
+
+ess_round_9$ipcrtiv<-unlist(lapply(ess_round_9$ipcrtiv,  recode_openness_to_change_compund_values),recursive=FALSE)
+
+ess_round_9$ipgdtim<-unlist(lapply(ess_round_9$ipgdtim,  recode_openness_to_change_compund_values),recursive=FALSE)
+
+ess_round_9$ipadvnt<-unlist(lapply(ess_round_9$ipadvnt,  recode_openness_to_change_compund_values),recursive=FALSE)
+
+ess_round_9$impfun<-unlist(lapply(ess_round_9$impfun,  recode_openness_to_change_compund_values),recursive=FALSE)
+
+ess_round_9$impfree<-unlist(lapply(ess_round_9$impfree,  recode_openness_to_change_compund_values),recursive=FALSE)
+```
+
++ d. Compute summary statistics for all variables in the data (as we did in the class – make sure that the variables are treated in appropriate way – categorical vs. numerical).
+```{r Task4d}
+summary(ess_round_9[,c(opennessToChangeConpundVars,'tporgwk','lrscale','wrkctra','agea')])
+```
+
++ e.  Calculate a mean of indicators measuring _Opneness to change_ variable for each unit.   
+```{r Task4e}
+ess_round_9$opennessToChange<- rowMeans(ess_round_9[,opennessToChangeConpundVars], na.rm=TRUE)
+```
+
+
++ f. Extract rows from the dataframe in which value of your joined variable _Opneness to change_ is higher than mean value of this variable and __create table__ on recoded  _Political oreintation_ variable. As a result you only present a table.  
+```{r Task4f}
+otc_greater_than_mean<-ess_round_9[ess_round_9$opennessToChange>mean(ess_round_9$opennessToChange,na.rm=TRUE),]
+lrscaleTable<-table(ess_round_9$lrscale)
+lrscaleTable
+```
+
+
+\pagebreak
+
+5. Working with lists
++ a. Create a list object to store the results of task 4e and 4f
+
+```{r Task5}
+listWithResults<-list(ess_round_9$opennessToChange,otc_greater_than_mean,lrscaleTable)
+```
++ b. Extract second column of the second object stored in the list 
+
+```{r Task6}
+second_column_second_object<-(listWithResults[[2]])[,c(2)]
+```
