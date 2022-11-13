@@ -1,0 +1,21 @@
+TY  - JOUR
+TI  - Random graph models for dynamic networks
+AU  - Zhang, Xiao
+AU  - Moore, Cristopher
+AU  - Newman, Mark E. J.
+T2  - The European Physical Journal B
+AB  - Recent theoretical work on the modeling of network structure has focused primarily on networks that are static and unchanging, but many real-world networks change their structure over time. There exist natural generalizations to the dynamic case of many static network models, including the classic random graph, the configuration model, and the stochastic block model, where one assumes that the appearance and disappearance of edges are governed by continuous-time Markov processes with rate parameters that can depend on properties of the nodes. Here we give an introduction to this class of models, showing for instance how one can compute their equilibrium properties. We also demonstrate their use in data analysis and statistical inference, giving efficient algorithms for fitting them to observed network data using the method of maximum likelihood. This allows us, for example, to estimate the time constants of network evolution or infer community structure from temporal network data using cues embedded both in the probabilities over time that node pairs are connected by edges and in the characteristic dynamics of edge appearance and disappearance. We illustrate these methods with a selection of applications, both to computer-generated test networks and real-world examples.
+DA  - 2017/10/18/
+PY  - 2017
+DO  - 10.1140/epjb/e2017-80122-8
+DP  - Springer Link
+VL  - 90
+IS  - 10
+SP  - 200
+J2  - Eur. Phys. J. B
+LA  - en
+SN  - 1434-6036
+UR  - https://doi.org/10.1140/epjb/e2017-80122-8
+Y2  - 2021/03/12/17:23:02
+L1  - http://link.springer.com/content/pdf/10.1140%2Fepjb%2Fe2017-80122-8.pdf
+ER  - 

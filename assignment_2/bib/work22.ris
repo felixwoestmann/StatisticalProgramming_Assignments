@@ -1,0 +1,23 @@
+TY  - CONF
+TI  - A Bayesian Approach Toward Finding Communities and Their Evolutions in Dynamic Social Networks
+AU  - Yang, Tianbao
+AU  - Chi, Yun
+AU  - Zhu, Shenghuo
+AU  - Gong, Yihong
+AU  - Jin, Rong
+T2  - Proceedings of the 2009 SIAM International Conference on Data Mining
+AB  - Although a large body of work are devoted to ﬁnding communities in static social networks, only a few studies examined the dynamics of communities in evolving social networks. In this paper, we propose a dynamic stochastic block model for ﬁnding communities and their evolutions in a dynamic social network. The proposed model captures the evolution of communities by explicitly modeling the transition of community memberships for individual nodes in the network. Unlike many existing approaches for modeling social networks that estimate parameters by their most likely values (i.e., point estimation), in this study, we employ a Bayesian treatment for parameter estimation that computes the posterior distributions for all the unknown parameters. This Bayesian treatment allows us to capture the uncertainty in parameter values and therefore is more robust to data noise than point estimation. In addition, an eﬃcient algorithm is developed for Bayesian inference to handle large sparse social networks. Extensive experimental studies based on both synthetic data and real-life data demonstrate that our model achieves higher accuracy and reveals more insights in the data than several state-of-theart algorithms.
+C3  - Proceedings of the 2009 SIAM International Conference on Data Mining
+DA  - 2009/04/30/
+PY  - 2009
+DO  - 10.1137/1.9781611972795.85
+DP  - DOI.org (Crossref)
+SP  - 990
+EP  - 1001
+LA  - en
+PB  - Society for Industrial and Applied Mathematics
+SN  - 978-0-89871-682-5 978-1-61197-279-5
+UR  - https://epubs.siam.org/doi/10.1137/1.9781611972795.85
+Y2  - 2020/12/29/21:09:41
+L1  - https://epubs.siam.org/doi/pdf/10.1137/1.9781611972795.85
+ER  - 

@@ -1,0 +1,18 @@
+TY  - JOUR
+TI  - Network Reconstruction and Community Detection from Dynamics
+AU  - Peixoto, Tiago P.
+T2  - Physical Review Letters
+AB  - We present a scalable nonparametric Bayesian method to perform network reconstruction from observed functional behavior that at the same time infers the communities present in the network. We show that the joint reconstruction with community detection has a synergistic effect, where the edge correlations used to inform the existence of communities are also inherently used to improve the accuracy of the reconstruction which, in turn, can better inform the uncovering of communities. We illustrate the use of our method with observations arising from epidemic models and the Ising model, both on synthetic and empirical networks, as well as on data containing only functional information.
+DA  - 2019/09/18/
+PY  - 2019
+DO  - 10.1103/PhysRevLett.123.128301
+DP  - APS
+VL  - 123
+IS  - 12
+SP  - 128301
+J2  - Phys. Rev. Lett.
+UR  - https://link.aps.org/doi/10.1103/PhysRevLett.123.128301
+Y2  - 2021/03/11/13:52:30
+L1  - https://journals.aps.org/prl/pdf/10.1103/PhysRevLett.123.128301
+L2  - https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.123.128301
+ER  - 

@@ -1,0 +1,25 @@
+TY  - JOUR
+TI  - Modeling and detecting change in temporal networks via the degree corrected stochastic block model
+AU  - Wilson, James D.
+AU  - Stevens, Nathaniel T.
+AU  - Woodall, William H.
+T2  - Quality and Reliability Engineering International
+AB  - In many applications, it is of interest to identify anomalous behavior within a dynamic interacting system. Such anomalous interactions are reflected by structural changes in the network representation of the system. We propose and investigate the use of the degree corrected stochastic block model (DCSBM) to model and monitor dynamic networks that undergo a significant structural change. We apply statistical process monitoring techniques to the estimated parameters of the DCSBM to identify significant structural changes in the network. We apply our surveillance strategy to a dynamic US Senate covoting network. We detect significant changes in the political network that reflect both times of cohesion and times of polarization among Republican and Democratic party members. Our analysis demonstrates that the DCSBM monitoring procedure effectively detects local and global structural changes in complex networks, providing useful insights into the modeled system. The DCSBM approach is an example of a general framework that combines parametric random graph models and statistical process monitoring techniques for network surveillance.
+DA  - 2019///
+PY  - 2019
+DO  - 10.1002/qre.2520
+DP  - Wiley Online Library
+VL  - 35
+IS  - 5
+SP  - 1363
+EP  - 1378
+LA  - en
+SN  - 1099-1638
+UR  - https://onlinelibrary.wiley.com/doi/abs/10.1002/qre.2520
+Y2  - 2019/12/20/09:53:42
+L2  - https://onlinelibrary.wiley.com/doi/full/10.1002/qre.2520
+KW  - network surveillance
+KW  - process monitoring
+KW  - quality control
+KW  - random graphs
+ER  - 

@@ -1,0 +1,24 @@
+TY  - JOUR
+TI  - Detecting communities and their evolutions in dynamic social networks—a Bayesian approach
+AU  - Yang, Tianbao
+AU  - Chi, Yun
+AU  - Zhu, Shenghuo
+AU  - Gong, Yihong
+AU  - Jin, Rong
+T2  - Machine Learning
+AB  - Although a large body of work is devoted to finding communities in static social networks, only a few studies examined the dynamics of communities in evolving social networks. In this paper, we propose a dynamic stochastic block model for finding communities and their evolution in a dynamic social network. The proposed model captures the evolution of communities by explicitly modeling the transition of community memberships for individual nodes in the network. Unlike many existing approaches for modeling social networks that estimate parameters by their most likely values (i.e., point estimation), in this study, we employ a Bayesian treatment for parameter estimation that computes the posterior distributions for all the unknown parameters. This Bayesian treatment allows us to capture the uncertainty in parameter values and therefore is more robust to data noise than point estimation. In addition, an efficient algorithm is developed for Bayesian inference to handle large sparse social networks. Extensive experimental studies based on both synthetic data and real-life data demonstrate that our model achieves higher accuracy and reveals more insights in the data than several state-of-the-art algorithms.
+DA  - 2011/02/01/
+PY  - 2011
+DO  - 10.1007/s10994-010-5214-7
+DP  - Springer Link
+VL  - 82
+IS  - 2
+SP  - 157
+EP  - 189
+J2  - Mach Learn
+LA  - en
+SN  - 1573-0565
+UR  - https://doi.org/10.1007/s10994-010-5214-7
+Y2  - 2020/12/22/13:23:40
+L1  - http://link.springer.com/content/pdf/10.1007%2Fs10994-010-5214-7.pdf
+ER  - 

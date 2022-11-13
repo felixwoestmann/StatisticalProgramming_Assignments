@@ -1,0 +1,20 @@
+TY  - CONF
+TI  - Dynamic Probabilistic Models for Latent Feature Propagation in Social Networks
+AU  - Heaukulani, Creighton
+AU  - Ghahramani, Zoubin
+T2  - International Conference on Machine Learning
+AB  - Current Bayesian models for dynamic social network data have focused on modelling the influence of evolving unobserved structure on observed social interactions. However, an understanding of how ob...
+C3  - International Conference on Machine Learning
+DA  - 2013/02/13/
+PY  - 2013
+DP  - proceedings.mlr.press
+SP  - 275
+EP  - 283
+LA  - en
+PB  - PMLR
+UR  - http://proceedings.mlr.press/v28/heaukulani13.html
+Y2  - 2020/12/22/16:55:05
+L1  - http://proceedings.mlr.press/v28/heaukulani13.pdf
+L2  - http://proceedings.mlr.press/v28/heaukulani13.html
+L2  - http://proceedings.mlr.press/v28/heaukulani13.html
+ER  - 

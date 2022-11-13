@@ -1,0 +1,20 @@
+TY  - CONF
+TI  - Modeling Temporal Evolution and Multiscale Structure in Networks
+AU  - Herlau, Tue
+AU  - Mørup, Morten
+AU  - Schmidt, Mikkel
+T2  - International Conference on Machine Learning
+AB  - Many real-world networks exhibit both temporal evolution and multiscale structure.  We propose a model for temporally correlated multifurcating hierarchies in complex networks which jointly capture...
+C3  - International Conference on Machine Learning
+DA  - 2013/05/26/
+PY  - 2013
+DP  - proceedings.mlr.press
+SP  - 960
+EP  - 968
+LA  - en
+PB  - PMLR
+UR  - http://proceedings.mlr.press/v28/herlau13.html
+Y2  - 2021/07/02/13:16:15
+L1  - http://proceedings.mlr.press/v28/herlau13.pdf
+L2  - http://proceedings.mlr.press/v28/herlau13.html
+ER  - 

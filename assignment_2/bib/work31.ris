@@ -1,0 +1,20 @@
+TY  - JOUR
+TI  - Flow stability for dynamic community detection
+AU  - Bovet, Alexandre
+AU  - Delvenne, Jean-Charles
+AU  - Lambiotte, Renaud
+T2  - arXiv:2101.06131 [physics]
+AB  - Many systems exhibit complex temporal dynamics due to the presence of different processes taking place simultaneously. Temporal networks provide a framework to describe the time-resolve interactions between components of a system. An important task when investigating such systems is to extract a simplified view of the temporal network, which can be done via dynamic community detection or clustering. Several works have generalized existing community detection methods for static networks to temporal networks, but they usually rely on temporal aggregation over time windows, the assumption of an underlying stationary process, or sequences of different stationary epochs. Here, we derive a method based on a dynamical process evolving on the temporal network and restricted by its activation pattern that allows to consider the full temporal information of the system. Our method allows dynamics that do not necessarily reach a steady state, or follow a sequence of stationary states. Our framework encompasses several well-known heuristics as special cases. We show that our method provides a natural way to disentangle the different natural dynamical scales present in a system. We demonstrate our method abilities on synthetic and real-world examples.
+DA  - 2021/01/15/
+PY  - 2021
+DP  - arXiv.org
+UR  - http://arxiv.org/abs/2101.06131
+Y2  - 2021/01/19/06:11:05
+L1  - https://arxiv.org/pdf/2101.06131.pdf
+L2  - https://arxiv.org/abs/2101.06131
+N1  - Comment: 41 pages, 6 figures
+KW  - Physics - Data Analysis, Statistics and Probability
+KW  - Computer Science - Social and Information Networks
+KW  - Physics - Physics and Society
+KW  - Mathematics - Dynamical Systems
+ER  - 

@@ -1,0 +1,46 @@
+TY  - JOUR
+TI  - Evolutionary Nonnegative Matrix Factorization Algorithms for Community Detection in Dynamic Networks
+AU  - Ma, X.
+AU  - Dong, D.
+T2  - IEEE Transactions on Knowledge and Data Engineering
+AB  - Discovering evolving communities in dynamic networks is essential to important applications such as analysis for dynamic web content and disease progression. Evolutionary clustering uses the temporal smoothness framework that simultaneously maximizes the clustering accuracy at the current time step and minimizes the clustering drift between two successive time steps. In this paper, we propose two evolutionary nonnegative matrix factorization (ENMF) frameworks for detecting dynamic communities. To address the theoretical relationship among evolutionary clustering algorithms, we first prove the equivalence relationship between ENMF and optimization of evolutionary modularity density. Then, we extend the theory by proving the equivalence between evolutionary spectral clustering and ENMF, which serves as the theoretical foundation for hybrid algorithms. Based on the equivalence, we propose a semi-supervised ENMF (sE-NMF) by incorporating a priori information into ENMF. Unlike the traditional semi-supervised algorithms, a priori information is integrated into the objective function of the algorithm. The main advantage of the proposed algorithm is to escape the local optimal solution without increasing time complexity. The experimental results over a number of artificial and real world dynamic networks illustrate that the proposed method is not only more accurate but also more robust than the state-of-the-art approaches.
+DA  - 2017/05//
+PY  - 2017
+DO  - 10.1109/TKDE.2017.2657752
+DP  - IEEE Xplore
+VL  - 29
+IS  - 5
+SP  - 1045
+EP  - 1058
+SN  - 1558-2191
+L1  - https://ieeexplore.ieee.org/stampPDF/getPDF.jsp?tp=&arnumber=7831395&ref=aHR0cHM6Ly9pZWVleHBsb3JlLmllZWUub3JnL2RvY3VtZW50Lzc4MzEzOTU=
+L2  - https://ieeexplore.ieee.org/document/7831395
+KW  - pattern clustering
+KW  - Dynamic networks
+KW  - network theory (graphs)
+KW  - community detection
+KW  - Classification algorithms
+KW  - Clustering algorithms
+KW  - dynamic networks
+KW  - evolutionary clustering
+KW  - community structure
+KW  - nonnegative matrix factorization
+KW  - Heuristic algorithms
+KW  - evolutionary spectral clustering
+KW  - Algorithm design and analysis
+KW  - disease progression
+KW  - Diseases
+KW  - dynamic communities
+KW  - dynamic Web content
+KW  - ENMF frameworks
+KW  - evolutionary computation
+KW  - evolutionary modularity density
+KW  - evolutionary nonnegative matrix factorization algorithms
+KW  - matrix algebra
+KW  - objective function
+KW  - Optimization
+KW  - semisupervised algorithms
+KW  - temporal smoothness framework
+KW  - time complexity
+KW  - Time complexity
+ER  - 

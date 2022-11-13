@@ -1,0 +1,22 @@
+TY  - JOUR
+TI  - The dynamic random subgraph model for the clustering of evolving networks
+AU  - Zreik, Rawya
+AU  - Latouche, Pierre
+AU  - Bouveyron, Charles
+T2  - Computational Statistics
+AB  - In recent years, many clustering methods have been proposed to extract information from networks. The principle is to look for groups of vertices with homogenous connection profiles. Most of these techniques are suitable for static networks, that is to say, not taking into account the temporal dimension. This work is motivated by the need of analyzing evolving networks where a decomposition of the networks into subgraphs is given. Therefore, in this paper, we consider the random subgraph model (RSM) which was proposed recently to model networks through latent clusters built within known partitions. Using a state space model to characterize the cluster proportions, RSM is then extended in order to deal with dynamic networks. We call the latter the dynamic random subgraph model (dRSM). A variational expectation maximization (VEM) algorithm is proposed to perform inference. We show that the variational approximations lead to an update step which involves a new state space model from which the parameters along with the hidden states can be estimated using the standard Kalman filter and Rauch–Tung–Striebel smoother. Simulated data sets are considered to assess the proposed methodology. Finally, dRSM along with the corresponding VEM algorithm are applied to an original maritime network built from printed Lloyd’s voyage records.
+DA  - 2017/06/01/
+PY  - 2017
+DO  - 10.1007/s00180-016-0655-5
+DP  - Springer Link
+VL  - 32
+IS  - 2
+SP  - 501
+EP  - 533
+J2  - Comput Stat
+LA  - en
+SN  - 1613-9658
+UR  - https://doi.org/10.1007/s00180-016-0655-5
+Y2  - 2021/03/12/13:27:41
+L1  - http://link.springer.com/content/pdf/10.1007%2Fs00180-016-0655-5.pdf
+ER  - 

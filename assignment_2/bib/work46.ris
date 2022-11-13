@@ -1,0 +1,27 @@
+TY  - JOUR
+TI  - A review of dynamic network models with latent variables
+AU  - Kim, Bomin
+AU  - Lee, Kevin H.
+AU  - Xue, Lingzhou
+AU  - Niu, Xiaoyue
+T2  - Statistics Surveys
+AB  - We present a selective review of statistical modeling of dynamic networks. We focus on models with latent variables, specifically, the latent space models and the latent class models (or stochastic blockmodels), which investigate both the observed features and the unobserved structure of networks. We begin with an overview of the static models, and then we introduce the dynamic extensions. For each dynamic model, we also discuss its applications that have been studied in the literature, with the data source listed in Appendix. Based on the review, we summarize a list of open problems and challenges in dynamic network modeling with latent variables.
+DA  - 2018/01//
+PY  - 2018
+DO  - 10.1214/18-SS121
+DP  - Project Euclid
+VL  - 12
+SP  - 105
+EP  - 135
+SN  - 1935-7516
+UR  - https://projecteuclid.org/journals/statistics-surveys/volume-12/issue-none/A-review-of-dynamic-network-models-with-latent-variables/10.1214/18-SS121.full
+Y2  - 2021/03/12/17:21:42
+L1  - https://projecteuclid.org/download/pdfview_1/euclid.ssu/1535961690
+L1  - https://projecteuclid.org/journals/statistics-surveys/volume-12/issue-none/A-review-of-dynamic-network-models-with-latent-variables/10.1214/18-SS121.pdf
+L2  - https://projecteuclid.org/journals/statistics-surveys/volume-12/issue-none/A-review-of-dynamic-network-models-with-latent-variables/10.1214/18-SS121.full?tab=ArticleLink
+KW  - stochastic blockmodel
+KW  - Dynamic networks
+KW  - social network analysis
+KW  - Latent space model
+KW  - latent variable model
+ER  - 

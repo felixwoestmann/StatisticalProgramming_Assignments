@@ -1,0 +1,21 @@
+TY  - JOUR
+TI  - An exact algorithm for time-dependent variational inference for the dynamic stochastic block model
+AU  - Bartolucci, Francesco
+AU  - Pandolfi, Silvia
+T2  - Pattern Recognition Letters
+AB  - An exact algorithm for estimating the dynamic stochastic block model is proposed. This model assumes a hidden Markov chain for the evolution of the social behavior of a group of individuals at repeated time occasions and may be used to assign these individuals to the latent blocks in a dynamic fashion. For the estimation of this model, the proposed exact algorithm maximizes the target function introduced by Matias and Miele (2017). This function is derived from a variational approximation of the model log-likelihood, based on the assumption that the latent variables identifying the blocks are a posteriori independent across individuals, but not across time occasions. A simulation study is performed to compare the exact algorithm with the approximate maximization algorithm proposed by Matias and Miele (2017). Results show that there is a certain advantage of the first in terms of dynamic assignment of individuals to the latent blocks in comparison to the true blocking structure, as measured by the adjusted Rand index.
+DA  - 2020/07/24/
+PY  - 2020
+DO  - 10.1016/j.patrec.2020.07.014
+DP  - ScienceDirect
+J2  - Pattern Recognition Letters
+LA  - en
+SN  - 0167-8655
+UR  - http://www.sciencedirect.com/science/article/pii/S0167865520302609
+Y2  - 2020/07/29/07:21:02
+L1  - https://pdf.sciencedirectassets.com/271524/AIP/1-s2.0-S0167865520302609/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEEcaCXVzLWVhc3QtMSJGMEQCIENEqls5B2DhohnxQLBTb9oCQPcCfm%2BfziXenE2QjWenAiBBrNuSogzn8YVz7VWRstfv9u8P4C%2BN7hEBbYaBzRCi4Sq0AwgQEAMaDDA1OTAwMzU0Njg2NSIM8of0mlPbHQ9BqT%2FjKpEDM2DUTVxwnNUiD%2FiDBLCXwP21x4JRthPu%2BubvS%2Fc5e9wqym0lQSrtfgLI3vy1SLqrAHezgchMrdMS4F%2FUyEJRWl0E4ev%2FIDbEIW8fV%2B1rJTCB4bhcaSB03WxFO1rKzfsiLBTW2C3C3t9PcSy7iv%2FCnXCsy7jgmlrxnyQJSEXsGSSI0%2FSf8G5DapXS%2B%2BOPlZpZcdndO%2B7m9dlVk%2FyIxgm4j3DUXOgBFjfxyTFcwSLIiegvUMHw7wEw3%2BcaaArm84bMMk%2FFgktZFjprrWLpqXwRM29o9lUBzVE77%2BdRBs6BQW81DvWnqgMMAoEIcr4EoHLlfQVVG416P498cO2Jx0%2FNfv6Yne1%2B45WcobpwneRK3PiYTfSbdZRUUdl9xfZ1qbplJWLfnKi2Adfi9AMqrWoYoVqh8USmcHNnhjvfG1jYCLhg5gXQyNgb6kDctuzbY4Hhhwz5P%2BCsW1sdJKZwOiDrCBHKxaafNsRavxS3y8ojs1bRGU0EzBKPLipDCaeVmc%2BFLzl%2FMfZ5afq34Y4zmEEsqCMw5LCE%2BQU67AFBtKRJnhyfMrfpzTwYTINHcJYd32AjkPq17qMpMYGfIJnmPqAKUYZE3ZmO%2FDC4qXBF8dYpMNUVfb2QUcb%2BmduleFCLJ5vgAd3tha9GGrvY%2BPSUhs%2BMUOYhZTC5LsunJSiGzEc3CIJ37luwOl5CbVqBQn7Ftd66Mpk5exUoVgmMfPjVgz%2FYR72H1Tp70ucSUehx%2Fg1OXwHDYR41H%2FFqLqSMGP1Y7MK9hsUZxnhff%2FjvEuUHv%2BPg9pGxP10j%2Fa7hRdaERmJ%2Bahz5AiLItsvtc6NRTji8yiyy0%2Fwj2MZs%2BbBKUeKpFRt1GrSKoU6ZiQ%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20200729T071752Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTY7AFNFVOB%2F20200729%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=5100086158f04a7dddfa750961fed04633b66d6b855099ad0e5427795e01a26b&hash=f59b57722025830d51848df74aa122ecc8329222d704848f25c569397904e18e&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S0167865520302609&tid=spdf-52bdc255-ae8e-40d5-8c4c-9560cf019f1a&sid=9054968588b9c044494a9d164e61973c0897gxrqb&type=client
+L2  - http://www.sciencedirect.com/science/article/pii/S0167865520302609
+KW  - longitudinal data
+KW  - adjusted Rand index
+KW  - Expectation-maximization algorithm
+ER  - 

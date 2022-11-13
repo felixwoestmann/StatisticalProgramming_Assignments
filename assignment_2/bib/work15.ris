@@ -1,0 +1,25 @@
+TY  - CONF
+TI  - Recurrent Dirichlet Belief Networks for interpretable Dynamic Relational Data Modelling
+AU  - Li, Yaqiong
+AU  - Fan, Xuhui
+AU  - Chen, Ling
+AU  - Li, Bin
+AU  - Yu, Zheng
+AU  - Sisson, Scott A.
+T2  - Twenty-Ninth International Joint Conference on Artificial Intelligence and Seventeenth Pacific Rim International Conference on Artificial Intelligence {IJCAI-PRICAI-20}
+AB  - The Dirichlet Belief Network (DirBN) has been recently proposed as a promising approach in learning interpretable deep latent representations for objects. In this work, we leverage its interpretable modelling architecture and propose a deep dynamic probabilistic framework – the Recurrent Dirichlet Belief Network (Recurrent-DBN) – to study interpretable hidden structures from dynamic relational data. The proposed Recurrent-DBN has the following merits: (1) it infers interpretable and organised hierarchical latent structures for objects within and across time steps; (2) it enables recurrent long-term temporal dependence modelling, which outperforms the one-order Markov descriptions in most of the dynamic probabilistic frameworks; (3) the computational cost scales to the number of positive links only. In addition, we develop a new inference strategy, which ﬁrst upwardand-backward propagates latent counts and then downward-and-forward samples variables, to enable efﬁcient Gibbs sampling for the RecurrentDBN. We apply the Recurrent-DBN to dynamic relational data problems. The extensive experiment results on real-world data validate the advantages of the Recurrent-DBN over the state-of-the-art models in interpretable latent structure discovery and improved link prediction performance.
+C1  - Yokohama, Japan
+C3  - Proceedings of the Twenty-Ninth International Joint Conference on Artificial Intelligence
+DA  - 2020/07//
+PY  - 2020
+DO  - 10.24963/ijcai.2020/342
+DP  - DOI.org (Crossref)
+SP  - 2470
+EP  - 2476
+LA  - en
+PB  - International Joint Conferences on Artificial Intelligence Organization
+SN  - 978-0-9992411-6-5
+UR  - https://www.ijcai.org/proceedings/2020/342
+Y2  - 2020/12/28/19:47:34
+L1  - https://www.ijcai.org/Proceedings/2020/0342.pdf
+ER  - 

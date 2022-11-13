@@ -1,0 +1,29 @@
+TY  - JOUR
+TI  - Community Detection in Dynamic Networks: Equivalence Between Stochastic Blockmodels and Evolutionary Spectral Clustering
+AU  - Karaaslanlı, A.
+AU  - Aviyente, S.
+T2  - IEEE Transactions on Signal and Information Processing over Networks
+AB  - Community detection aims to identify densely connected groups of nodes in complex networks. Although a variety of methods have been proposed for community detection, the relationship between them is not well understood. Recently, researchers have shown the equivalence between modularity optimization and likelihood maximization in stochastic block models (SBMs) for static networks. Showing this equivalence is important for both understanding the different community detection methods and selecting the hyperparameters in the different algorithms in a more principled way. In this paper, we extend this equivalence for dynamic community detection algorithms. In particular, we show the equivalence of evolutionary spectral clustering to a variant of dynamic stochastic blockmodel. For this purpose, we first introduce a novel dynamic SBM where the evolution of communities over time is modeled with pairwise Markov random fields. We then show that the log-posterior of the proposed model is equivalent to the quality function of evolutionary spectral clustering. This equivalence is used to determine the forgetting factor in evolutionary spectral clustering and to develop two new algorithms for dynamic community detection. Compared to original evolutionary spectral clustering, the forgetting factor is time-dependent and derived directly from the parameters of the proposed dynamic SBM. The proposed algorithms are shown to be superior to state-of-the-art dynamic community detection methods for both simulated and real-world dynamic networks.
+DA  - 2021///
+PY  - 2021
+DO  - 10.1109/TSIPN.2021.3052047
+DP  - IEEE Xplore
+VL  - 7
+SP  - 130
+EP  - 143
+SN  - 2373-776X
+ST  - Community Detection in Dynamic Networks
+L1  - https://ieeexplore.ieee.org/stampPDF/getPDF.jsp?tp=&arnumber=9328231&ref=aHR0cHM6Ly9pZWVleHBsb3JlLmllZWUub3JnL2Fic3RyYWN0L2RvY3VtZW50LzkzMjgyMzE=
+L2  - https://ieeexplore.ieee.org/abstract/document/9328231
+KW  - Clustering algorithms
+KW  - dynamic networks
+KW  - Heuristic algorithms
+KW  - Adaptation models
+KW  - Community detection
+KW  - evolutionary spectral clustering
+KW  - Image edge detection
+KW  - Markov random fields
+KW  - Phase change materials
+KW  - stochastic blockmodeling
+KW  - Symmetric matrices
+ER  - 

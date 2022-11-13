@@ -1,0 +1,21 @@
+TY  - JOUR
+TI  - Spectral clustering in the dynamic stochastic block model
+AU  - Pensky, Marianna
+AU  - Zhang, Teng
+T2  - Electronic Journal of Statistics
+AB  - In the present paper, we have studied a Dynamic Stochastic Block Model (DSBM) under the assumptions that the connection probabilities, as functions of time, are smooth and that at most s nodes can switch their class memberships between two consecutive time points. We estimate the edge probability tensor by a kernel-type procedure and extract the group memberships of the nodes by spectral clustering. The procedure is computationally viable, adaptive to the unknown smoothness of the functional connection probabilities, to the rate s of membership switching, and to the unknown number of clusters. In addition, it is accompanied by nonasymptotic guarantees for the precision of estimation and clustering.
+DA  - 2019///
+PY  - 2019
+DO  - 10.1214/19-EJS1533
+DP  - DOI.org (Crossref)
+VL  - 13
+IS  - 1
+SP  - 678
+EP  - 709
+J2  - Electron. J. Statist.
+LA  - en
+SN  - 1935-7524
+UR  - https://projecteuclid.org/euclid.ejs/1550286096
+Y2  - 2020/12/29/19:49:46
+L1  - https://sciences.ucf.edu/math/mpensky/wp-content/uploads/sites/51/2019/10/EJS2019_SpecClustPubl.pdf
+ER  - 

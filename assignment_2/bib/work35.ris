@@ -1,0 +1,20 @@
+TY  - JOUR
+TI  - Modelling sequences and temporal networks with dynamic community structures
+AU  - Peixoto, Tiago P.
+AU  - Rosvall, Martin
+T2  - Nature Communications
+AB  - In evolving complex systems such as air traffic and social organisations, collective effects emerge from their many components’ dynamic interactions. While the dynamic interactions can be represented by temporal networks with nodes and links that change over time, they remain highly complex. It is therefore often necessary to use methods that extract the temporal networks’ large-scale dynamic community structure. However, such methods are subject to overfitting or suffer from effects of arbitrary, a priori-imposed timescales, which should instead be extracted from data. Here we simultaneously address both problems and develop a principled data-driven method that determines relevant timescales and identifies patterns of dynamics that take place on networks, as well as shape the networks themselves. We base our method on an arbitrary-order Markov chain model with community structure, and develop a nonparametric Bayesian inference framework that identifies the simplest such model that can explain temporal interaction data.
+DA  - 2017/09/19/
+PY  - 2017
+DO  - 10.1038/s41467-017-00148-9
+DP  - www.nature.com
+VL  - 8
+IS  - 1
+SP  - 582
+LA  - en
+SN  - 2041-1723
+UR  - https://www.nature.com/articles/s41467-017-00148-9
+Y2  - 2021/03/04/14:42:26
+L1  - https://www.nature.com/articles/s41467-017-00148-9.pdf
+L2  - https://www.nature.com/articles/s41467-017-00148-9
+ER  - 

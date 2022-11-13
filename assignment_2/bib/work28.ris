@@ -1,0 +1,23 @@
+TY  - JOUR
+TI  - The dynamic stochastic topic block model for dynamic networks with textual edges
+AU  - Corneli, Marco
+AU  - Bouveyron, Charles
+AU  - Latouche, Pierre
+AU  - Rossi, Fabrice
+T2  - Statistics and Computing
+AB  - The present paper develops a probabilistic model to cluster the nodes of a dynamic graph, accounting for the content of textual edges as well as their frequency. Vertices are clustered in groups which are homogeneous both in terms of interaction frequency and discussed topics. The dynamic graph is considered stationary on a latent time interval if the proportions of topics discussed between each pair of node groups do not change in time during that interval. A classification variational expectation–maximization algorithm is adopted to perform inference. A model selection criterion is also derived to select the number of node groups, time clusters and topics. Experiments on simulated data are carried out to assess the proposed methodology. We finally illustrate an application to the Enron dataset.
+DA  - 2019/07/01/
+PY  - 2019
+DO  - 10.1007/s11222-018-9832-4
+DP  - Springer Link
+VL  - 29
+IS  - 4
+SP  - 677
+EP  - 695
+J2  - Stat Comput
+LA  - en
+SN  - 1573-1375
+UR  - https://doi.org/10.1007/s11222-018-9832-4
+Y2  - 2020/12/29/22:55:19
+L1  - https://link.springer.com/content/pdf/10.1007%2Fs11222-018-9832-4.pdf
+ER  - 

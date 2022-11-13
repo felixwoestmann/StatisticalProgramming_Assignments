@@ -1,0 +1,26 @@
+TY  - JOUR
+TI  - Exact ICL maximization in a non-stationary temporal extension of the stochastic block model for dynamic networks
+AU  - Corneli, Marco
+AU  - Latouche, Pierre
+AU  - Rossi, Fabrice
+T2  - Neurocomputing
+T3  - Advances in artificial neural networks, machine learning and computational intelligence
+AB  - The stochastic block model (SBM) is a flexible probabilistic tool that can be used to model interactions between clusters of nodes in a network. However, it does not account for interactions of time varying intensity between clusters. The extension of the SBM developed in this paper addresses this shortcoming through a temporal partition: assuming that interactions between nodes are recorded on fixed-length time intervals, the inference procedure associated with the model we propose allows us to cluster simultaneously the nodes of the network and the time intervals. The number of clusters of nodes and of time intervals, as well as the memberships to clusters, are obtained by maximizing an exact integrated complete-data likelihood, relying on a greedy search approach. Experiments on simulated and real data are carried out in order to assess the proposed methodology.
+DA  - 2016/06/05/
+PY  - 2016
+DO  - 10.1016/j.neucom.2016.02.031
+DP  - ScienceDirect
+VL  - 192
+SP  - 81
+EP  - 91
+J2  - Neurocomputing
+LA  - en
+SN  - 0925-2312
+UR  - http://www.sciencedirect.com/science/article/pii/S0925231216002599
+Y2  - 2020/12/29/22:51:36
+L1  - https://pdf.sciencedirectassets.com/271597/1-s2.0-S0925231216X0015X/1-s2.0-S0925231216002599/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEK%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLWVhc3QtMSJIMEYCIQCJSNniGIKTy8YEVY0nJV897ZZga%2B0lI8q9AtClawqksgIhAJiDCDWp%2F5D2UVwVJKET6ZewtFtyg%2BRqoMuNczRcCnd%2FKrQDCGcQAxoMMDU5MDAzNTQ2ODY1Igw7Rj1HOyOx%2BcpE7V4qkQMqvJ1AFIoCrhj5%2B6JYcc6l7FFHE4XqZoMLhKGjeTO22UtgzJKVZnbHFRGh0dKzqcu8dxrXWdundg5%2FTsVA07BQMTyjCct449FBt%2B8P5HJAYKVt%2F%2BF96a0w3C3iTTalynVRTOOfEt5kk%2BLRxApGnXMH9P4Xgbdm%2BlDicKsZehqSEMiIpcLID8v1JD%2FEzYkIAPnQuUVslcAxclAFfzW2yaVZoOLEforqR20a4hM6bS3hSssBM1EhU5rPuxUUO4Mb80U1UkFU7IvpKj8%2F1mQBa5Pp64AofPG56bCSgB7zr%2FisWeTPhYeS0H93HAAf%2FDeVTdrtDklOshs04EcUytiVLxx5DdzUoeL0SltJAVgOf2E4FwZNUgA9dBWw7GqpnidZ%2FaUcdPx6ro%2Fmyx%2BeKTrcqBQIq0F%2F95w%2Bg2wDl8fh%2BQctU86guPd%2BfSMm8p36TjXERTT5jya2qVGti6U6wp0hGCYh2gaAh6Be9%2FBKToGwkZvTNX48NS6obIffX4G4cGxANWzx7ilHF9EDygx%2FyXP9Djg0nzCq1K7%2FBTrqASf4mZgUMdA2gSXUeA3A5NRIaqpmJbjVhVVJUwLd%2FpowANF%2FhMYIgB0qLCrsnOIzdwkLLf8Ru2KUv8VYiRBvnj26IckLWb%2F7bz8Oxl%2BCdcRNVZqtQg0J1wqr5bz2uAF%2FqBwgx5V9XQXzDYbZCR4tR5A0TxoqA6no%2F63cW1cprbcdpN4c1P%2Bsr024JSe9CviDY1OL0GGdWq1c7xRaOxgC70CQjGbec1ACiO6b4BeXuDvDuHvclfDATDSAfegJzjI7Nf11yFMgKEr6D%2FsCKfA3t1wnD8Lf7QsNyry1XazS5N4PaWWQj%2BvDM8wgJg%3D%3D&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20201229T225136Z&X-Amz-SignedHeaders=host&X-Amz-Expires=300&X-Amz-Credential=ASIAQ3PHCVTY23TOMIN4%2F20201229%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=17a87230637e6bf60bb4a8469f4790cbd96565be4909ccf6c9101d2c37cf3e2c&hash=bbaaec7a45aa7f5cebbe934217b99eaf14cd6adc30bcaed228d81ae0eaaee55e&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S0925231216002599&tid=spdf-0eedfda4-b40a-4b34-9782-7f343bb90049&sid=64e6199232c62448704907128043bef5282dgxrqb&type=client
+L2  - https://www.sciencedirect.com/science/article/pii/S0925231216002599?via%3Dihub
+KW  - Dynamic networks
+KW  - Exact ICL
+KW  - Stochastic block models
+ER  - 
