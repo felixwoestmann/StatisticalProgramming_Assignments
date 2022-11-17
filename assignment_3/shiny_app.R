@@ -67,6 +67,35 @@ library(shiny)
 library(shinyalert)
 library(glue)
 
+scatterPlotSideBarPanel <- function() {
+  return (
+    sidebarPanel(
+      sliderInput(
+        "movieRange",
+        label = h3("Select range of top movies by X Axis"),
+        min = 0,
+        max = nrow(movies),
+        value = c(0, nrow(movies)),
+        step = 1
+      ),
+      selectInput(
+        "scatterPlotXAxis",
+        "X Axis:",
+        selected = optionsScatterplotAxis[1],
+        optionsScatterplotAxis
+      ),
+      actionButton('switchVariables', "Switch", icon = icon("arrows-rotate")),
+      selectInput(
+        "scatterPlotYAxis",
+        "Y Axis:",
+        selected = optionsScatterplotAxis[2],
+        optionsScatterplotAxis
+      ),
+      checkboxInput("enableLinearModel", "Show regression line", value = FALSE)
+    )
+  )
+}
+
 ui <- fluidPage(titlePanel("Top 70 grossing movies 2022"),
                 mainPanel(tabsetPanel(
                   tabPanel(
@@ -88,34 +117,11 @@ ui <- fluidPage(titlePanel("Top 70 grossing movies 2022"),
                     plotOutput("plot")
                   ),
                   tabPanel("Summary", verbatimTextOutput("summary")),
-                  tabPanel("Scatterplot",
-                           sidebarLayout(
-                             sidebarPanel(
-                               sliderInput(
-                                 "movieRange",
-                                 label = h3("Select range of top movies by X Axis"),
-                                 min = 0,
-                                 max = nrow(movies),
-                                 value = c(0, nrow(movies)),
-                                 step = 1
-                               ),
-                               selectInput(
-                                 "scatterPlotXAxis",
-                                 "X Axis:",
-                                 selected = optionsScatterplotAxis[1],
-                                 optionsScatterplotAxis
-                               ),
-                               actionButton('switchVariables', "Switch", icon = icon("arrows-rotate")),
-                               selectInput(
-                                 "scatterPlotYAxis",
-                                 "Y Axis:",
-                                 selected = optionsScatterplotAxis[2],
-                                 optionsScatterplotAxis
-                               ),
-                               checkboxInput("enableLinearModel", "Show regression line", value = FALSE)
-                             ),
-                             mainPanel(plotOutput("scatterPlot"))
-                           ))
+                  tabPanel(
+                    "Scatterplot",
+                    sidebarLayout(scatterPlotSideBarPanel(),
+                                  mainPanel(plotOutput("scatterPlot")))
+                  )
                 )))
 
 server <- function(input, output, session) {
@@ -126,8 +132,8 @@ server <- function(input, output, session) {
   })
   # Observe Switch Vars Button event
   observeEvent(input$switchVariables, {
-    yAxis<-input$scatterPlotYAxis
-    xAxis<-input$scatterPlotXAxis
+    yAxis <- input$scatterPlotYAxis
+    xAxis <- input$scatterPlotXAxis
     updateSelectInput(session,
                       'scatterPlotYAxis',
                       selected = xAxis)
@@ -147,9 +153,10 @@ server <- function(input, output, session) {
       })
       
     }
-    movies_sorted <- movies[order(movies[, input$scatterPlotXAxis]), ]
+    movies_sorted <-
+      movies[order(movies[, input$scatterPlotXAxis]),]
     movies_range <-
-      movies_sorted[input$movieRange[1]:input$movieRange[2], ]
+      movies_sorted[input$movieRange[1]:input$movieRange[2],]
     plot(
       movies_range[, input$scatterPlotXAxis],
       movies_range[, input$scatterPlotYAxis],
