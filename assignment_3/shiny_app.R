@@ -37,28 +37,30 @@ readableNamesColumns <-
     "Earnings in $"
   )
 
-readableNameForColumnName<-function(columnName) {
-  indexInColNames<-which(colnames(movies) == columnName)
+readableNameForColumnName <- function(columnName) {
+  indexInColNames <- which(colnames(movies) == columnName)
   return(readableNamesColumns[indexInColNames])
 }
 
-showAlertForSelectingSameVariableTwice<-function() {
-  return (shinyalert(
-    title = "X Axis and Y Axis have to be different!",
-    text = "",
-    size = "m",
-    closeOnEsc = FALSE,
-    closeOnClickOutside = FALSE,
-    html = FALSE,
-    type = "warning",
-    showConfirmButton = TRUE,
-    showCancelButton = FALSE,
-    confirmButtonText = "I understand, Maam",
-    confirmButtonCol = "#4CAF4F",
-    timer = 0,
-    imageUrl = "",
-    animation = TRUE
-  ))
+showAlertForSelectingSameVariableTwice <- function() {
+  return (
+    shinyalert(
+      title = "X Axis and Y Axis have to be different!",
+      text = "",
+      size = "m",
+      closeOnEsc = FALSE,
+      closeOnClickOutside = FALSE,
+      html = FALSE,
+      type = "warning",
+      showConfirmButton = TRUE,
+      showCancelButton = FALSE,
+      confirmButtonText = "I understand, Maam",
+      confirmButtonCol = "#4CAF4F",
+      timer = 0,
+      imageUrl = "",
+      animation = TRUE
+    )
+  )
 }
 
 library(shiny)
@@ -86,31 +88,34 @@ ui <- fluidPage(titlePanel("Top 70 grossing movies 2022"),
                     plotOutput("plot")
                   ),
                   tabPanel("Summary", verbatimTextOutput("summary")),
-                  tabPanel(
-                    "Scatterplot",
-                    sidebarLayout(sidebarPanel( sliderInput(
-                      "movieRange",
-                      label = h3("Select range of top movies by X Axis"),
-                      min = 0,
-                      max = nrow(movies),
-                      value = c(0, nrow(movies)),
-                      step = 1
-                    ),
-                    selectInput(
-                      "scatterPlotXAxis",
-                      "X Axis:",
-                      selected = optionsScatterplotAxis[1],
-                      optionsScatterplotAxis
-                    ),
-                    selectInput(
-                      "scatterPlotYAxis",
-                      "Y Axis:",
-                      selected = optionsScatterplotAxis[2],
-                      optionsScatterplotAxis
-                    )),mainPanel(plotOutput("scatterPlot")))
-                   
-                    
-                  )
+                  tabPanel("Scatterplot",
+                           sidebarLayout(
+                             sidebarPanel(
+                               sliderInput(
+                                 "movieRange",
+                                 label = h3("Select range of top movies by X Axis"),
+                                 min = 0,
+                                 max = nrow(movies),
+                                 value = c(0, nrow(movies)),
+                                 step = 1
+                               ),
+                               selectInput(
+                                 "scatterPlotXAxis",
+                                 "X Axis:",
+                                 selected = optionsScatterplotAxis[1],
+                                 optionsScatterplotAxis
+                               ),
+                               actionButton('switchVariables', "Switch", icon = icon("arrows-rotate")),
+                               selectInput(
+                                 "scatterPlotYAxis",
+                                 "Y Axis:",
+                                 selected = optionsScatterplotAxis[2],
+                                 optionsScatterplotAxis
+                               ),
+                               checkboxInput("enableLinearModel", "Show regression line", value = FALSE)
+                             ),
+                             mainPanel(plotOutput("scatterPlot"))
+                           ))
                 )))
 
 server <- function(input, output, session) {
@@ -118,6 +123,17 @@ server <- function(input, output, session) {
     hist(movies[, input$histVariable],
          breaks = input$plotBins,
          xlab = input$histVariable)
+  })
+  # Observe Switch Vars Button event
+  observeEvent(input$switchVariables, {
+    yAxis<-input$scatterPlotYAxis
+    xAxis<-input$scatterPlotXAxis
+    updateSelectInput(session,
+                      'scatterPlotYAxis',
+                      selected = xAxis)
+    updateSelectInput(session,
+                      'scatterPlotXAxis',
+                      selected = yAxis)
   })
   output$scatterPlot <- renderPlot({
     # Check that you can't choose X axis = Y axis
@@ -131,16 +147,23 @@ server <- function(input, output, session) {
       })
       
     }
-    movies_sorted <- movies[order(movies[,input$scatterPlotXAxis]),]
+    movies_sorted <- movies[order(movies[, input$scatterPlotXAxis]), ]
     movies_range <-
-      movies_sorted[input$movieRange[1]:input$movieRange[2],]
+      movies_sorted[input$movieRange[1]:input$movieRange[2], ]
     plot(
       movies_range[, input$scatterPlotXAxis],
       movies_range[, input$scatterPlotYAxis],
-      main = glue('Scatterplot of {readableNameForColumnName(input$scatterPlotYAxis)} and {readableNameForColumnName(input$scatterPlotXAxis)}'),
+      main = glue(
+        'Scatterplot of {readableNameForColumnName(input$scatterPlotYAxis)} and {readableNameForColumnName(input$scatterPlotXAxis)}'
+      ),
       ylab = readableNameForColumnName(input$scatterPlotYAxis),
-      xlab = readableNameForColumnName(input$scatterPlotXAxis)
+      xlab = readableNameForColumnName(input$scatterPlotXAxis),
+      col = "blue"
     )
+    if (input$enableLinearModel) {
+      # draw regression line
+      abline(lm(movies[, input$scatterPlotYAxis] ~ movies[, input$scatterPlotXAxis]), col = "red")
+    }
   })
 }
 
