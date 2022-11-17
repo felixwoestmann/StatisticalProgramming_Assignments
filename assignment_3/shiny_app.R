@@ -88,9 +88,9 @@ ui <- fluidPage(titlePanel("Top 70 grossing movies 2022"),
                   tabPanel("Summary", verbatimTextOutput("summary")),
                   tabPanel(
                     "Scatterplot",
-                    sliderInput(
+                    sidebarLayout(sidebarPanel( sliderInput(
                       "movieRange",
-                      label = h3("Select range of top earing movies"),
+                      label = h3("Select range of top movies by X Axis"),
                       min = 0,
                       max = nrow(movies),
                       value = c(0, nrow(movies)),
@@ -107,8 +107,9 @@ ui <- fluidPage(titlePanel("Top 70 grossing movies 2022"),
                       "Y Axis:",
                       selected = optionsScatterplotAxis[2],
                       optionsScatterplotAxis
-                    ),
-                    plotOutput("scatterPlot")
+                    )),mainPanel(plotOutput("scatterPlot")))
+                   
+                    
                   )
                 )))
 
@@ -130,13 +131,13 @@ server <- function(input, output, session) {
       })
       
     }
-    movies_sorted <- movies[order(movies$earningsInDollar),]
+    movies_sorted <- movies[order(movies[,input$scatterPlotXAxis]),]
     movies_range <-
       movies_sorted[input$movieRange[1]:input$movieRange[2],]
     plot(
       movies_range[, input$scatterPlotXAxis],
       movies_range[, input$scatterPlotYAxis],
-      main = glue('Scatterplot of {readableNameForColumnName(input$scatterPlotYAxis)} and {{readableNameForColumnName(input$scatterPlotXAxis)}'),
+      main = glue('Scatterplot of {readableNameForColumnName(input$scatterPlotYAxis)} and {readableNameForColumnName(input$scatterPlotXAxis)}'),
       ylab = readableNameForColumnName(input$scatterPlotYAxis),
       xlab = readableNameForColumnName(input$scatterPlotXAxis)
     )
