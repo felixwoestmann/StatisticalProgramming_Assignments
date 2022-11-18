@@ -18,9 +18,10 @@ colnames(movies) <-
 movies$earningsInDollar <-
   as.numeric(gsub(",", "", gsub("\\$", "", movies$earnings), fixed = TRUE))
 
+# Make nominal to factor
+movies$country<-as.factor(movies$country)
 
-
-optionsScatterplotAxis <- c("Earnings" = "earningsInDollar",
+numericVariables <- c("Earnings" = "earningsInDollar",
                             "IMDB Rating" = "imdb_rating",
                             "# Reviews" = "total_reviews")
 
@@ -67,6 +68,20 @@ library(shiny)
 library(shinyalert)
 library(glue)
 
+histogramSideBarPanel <- function() {
+  return (sidebarPanel(  selectInput("histVariable",
+                                     "Variable:",
+                                     numericVariables),
+                         sliderInput(
+                           "plotBins",
+                           label = h3("Select number of bins"),
+                           min = 1,
+                           max = 35,
+                           value = 10,
+                           step = 1
+                         )))
+}
+
 scatterPlotSideBarPanel <- function() {
   return (
     sidebarPanel(
@@ -81,15 +96,15 @@ scatterPlotSideBarPanel <- function() {
       selectInput(
         "scatterPlotXAxis",
         "X Axis:",
-        selected = optionsScatterplotAxis[1],
-        optionsScatterplotAxis
+        selected = numericVariables[1],
+        numericVariables
       ),
       actionButton('switchVariables', "Switch", icon = icon("arrows-rotate")),
       selectInput(
         "scatterPlotYAxis",
         "Y Axis:",
-        selected = optionsScatterplotAxis[2],
-        optionsScatterplotAxis
+        selected = numericVariables[2],
+        numericVariables
       ),
       checkboxInput("enableLinearModel", "Show regression line", value = FALSE)
     )
@@ -99,22 +114,8 @@ scatterPlotSideBarPanel <- function() {
 ui <- fluidPage(titlePanel("Top 70 grossing movies 2022"),
                 mainPanel(tabsetPanel(
                   tabPanel(
-                    "Plot",
-                    selectInput(
-                      "histVariable",
-                      "Variable:",
-                      c("Earnings" = "earningsInDollar",
-                        "Ratings" = "imdb_rating")
-                    ),
-                    sliderInput(
-                      "plotBins",
-                      label = h3("Select number of bins"),
-                      min = 1,
-                      max = 35,
-                      value = 10,
-                      step = 1
-                    ),
-                    plotOutput("plot")
+                    "Histograms",
+                    sidebarLayout(histogramSideBarPanel(),mainPanel( plotOutput("plotHist")))
                   ),
                   tabPanel("Summary", verbatimTextOutput("summary")),
                   tabPanel(
@@ -125,7 +126,7 @@ ui <- fluidPage(titlePanel("Top 70 grossing movies 2022"),
                 )))
 
 server <- function(input, output, session) {
-  output$plot <- renderPlot({
+  output$plotHist <- renderPlot({
     hist(movies[, input$histVariable],
          breaks = input$plotBins,
          xlab = input$histVariable)
@@ -154,9 +155,9 @@ server <- function(input, output, session) {
       
     }
     movies_sorted <-
-      movies[order(movies[, input$scatterPlotXAxis]),]
+      movies[order(movies[, input$scatterPlotXAxis]), ]
     movies_range <-
-      movies_sorted[input$movieRange[1]:input$movieRange[2],]
+      movies_sorted[input$movieRange[1]:input$movieRange[2], ]
     plot(
       movies_range[, input$scatterPlotXAxis],
       movies_range[, input$scatterPlotYAxis],
