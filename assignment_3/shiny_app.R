@@ -198,9 +198,16 @@ server <- function(input, output, session) {
     )
     if (input$enableLinearModel) {
       # draw regression line
-      linearModel<-lm(movies[, input$scatterPlotYAxis] ~ movies[, input$scatterPlotXAxis])
+      linearModel<-lm(movies_range[, input$scatterPlotYAxis] ~ movies_range[, input$scatterPlotXAxis])
       abline(linearModel, col = "red")
-
+      intercept<-coef(linearModel)[1]
+      intercept<-round(intercept,2)
+      slope<-coef(linearModel)[2]
+      slope<-signif(slope,2)
+      eq <- paste0(glue('{readableNameForColumnName(input$scatterPlotYAxis)} = '), intercept,
+                   ifelse(sign(slope)==1, " + ", " - "), abs(slope), glue(' × {readableNameForColumnName(input$scatterPlotXAxis)} '))
+      
+      mtext(eq, 3, line=-2)
     }
   })
 }
