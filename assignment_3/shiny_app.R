@@ -5,7 +5,7 @@ colnames(movies) <-
     "title",
     "directors",
     "country",
-    "languages.",
+    "languages",
     "earnings",
     "imdb_rating",
     "description",
@@ -18,12 +18,15 @@ colnames(movies) <-
 movies$earningsInDollar <-
   as.numeric(gsub(",", "", gsub("\\$", "", movies$earnings), fixed = TRUE))
 
-# Make nominal to factor
-movies$country<-as.factor(movies$country)
-
 numericVariables <- c("Earnings" = "earningsInDollar",
-                            "IMDB Rating" = "imdb_rating",
-                            "# Reviews" = "total_reviews")
+                      "IMDB Rating" = "imdb_rating",
+                      "# Reviews" = "total_reviews")
+
+# Make nominal to factor
+movies$country <- as.factor(movies$country)
+movies$languages <- as.factor(movies$languages)
+
+factorVariables <- c("Country" = "country","Languages"="languages")
 
 readableNamesColumns <-
   c(
@@ -69,17 +72,36 @@ library(shinyalert)
 library(glue)
 
 histogramSideBarPanel <- function() {
-  return (sidebarPanel(  selectInput("histVariable",
-                                     "Variable:",
-                                     numericVariables),
-                         sliderInput(
-                           "plotBins",
-                           label = h3("Select number of bins"),
-                           min = 1,
-                           max = 35,
-                           value = 10,
-                           step = 1
-                         )))
+  return (sidebarPanel(
+    selectInput("histVariable",
+                "Variable:",
+                numericVariables),
+    sliderInput(
+      "plotBins",
+      label = h3("Select number of bins"),
+      min = 1,
+      max = 35,
+      value = 10,
+      step = 1
+    )
+  ))
+}
+
+frequenciesSideBarPanel <- function() {
+  return (sidebarPanel(
+    selectInput("frequencyVariable",
+                "Variable:",
+                factorVariables),
+    sliderInput(
+      "minimumFrequency",
+      label = h3("Minimum Frequency"),
+      min = 1,
+      max = 5,
+      value = 1,
+      step = 1
+    ),
+    checkboxInput("sortFrequencies", "Sort frequencies", value = FALSE)
+  ))
 }
 
 scatterPlotSideBarPanel <- function() {
@@ -93,19 +115,15 @@ scatterPlotSideBarPanel <- function() {
         value = c(0, nrow(movies)),
         step = 1
       ),
-      selectInput(
-        "scatterPlotXAxis",
-        "X Axis:",
-        selected = numericVariables[1],
-        numericVariables
-      ),
+      selectInput("scatterPlotXAxis",
+                  "X Axis:",
+                  selected = numericVariables[1],
+                  numericVariables),
       actionButton('switchVariables', "Switch", icon = icon("arrows-rotate")),
-      selectInput(
-        "scatterPlotYAxis",
-        "Y Axis:",
-        selected = numericVariables[2],
-        numericVariables
-      ),
+      selectInput("scatterPlotYAxis",
+                  "Y Axis:",
+                  selected = numericVariables[2],
+                  numericVariables),
       checkboxInput("enableLinearModel", "Show regression line", value = FALSE)
     )
   )
@@ -115,9 +133,12 @@ ui <- fluidPage(titlePanel("Top 70 grossing movies 2022"),
                 mainPanel(tabsetPanel(
                   tabPanel(
                     "Histograms",
-                    sidebarLayout(histogramSideBarPanel(),mainPanel( plotOutput("plotHist")))
+                    sidebarLayout(histogramSideBarPanel(), mainPanel(plotOutput("plotHist")))
                   ),
-                  tabPanel("Summary", verbatimTextOutput("summary")),
+                  tabPanel(
+                    "Frequencies",
+                    sidebarLayout(frequenciesSideBarPanel(), mainPanel(plotOutput("frequencyPlot")))
+                  ),
                   tabPanel(
                     "Scatterplot",
                     sidebarLayout(scatterPlotSideBarPanel(),
@@ -141,6 +162,13 @@ server <- function(input, output, session) {
     updateSelectInput(session,
                       'scatterPlotXAxis',
                       selected = yAxis)
+  })
+  output$frequencyPlot <- renderPlot({
+    freq_tab = table(movies[, input$frequencyVariable])
+    if (input$sortFrequencies) {
+      freq_tab <- sort(freq_tab, decreasing = T)
+    }
+    barplot(freq_tab[freq_tab>=input$minimumFrequency])
   })
   output$scatterPlot <- renderPlot({
     # Check that you can't choose X axis = Y axis
@@ -170,7 +198,9 @@ server <- function(input, output, session) {
     )
     if (input$enableLinearModel) {
       # draw regression line
-      abline(lm(movies[, input$scatterPlotYAxis] ~ movies[, input$scatterPlotXAxis]), col = "red")
+      linearModel<-lm(movies[, input$scatterPlotYAxis] ~ movies[, input$scatterPlotXAxis])
+      abline(linearModel, col = "red")
+
     }
   })
 }
