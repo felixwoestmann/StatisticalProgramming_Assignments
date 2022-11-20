@@ -153,7 +153,7 @@ server <- function(input, output, session) {
     hist(movies[, input$histVariable],
          breaks = input$plotBins,
          main =glue('Histogram of {readableNameForColumnName(input$histVariable)}'),
-         xlab = input$histVariable)
+         xlab = readableNameForColumnName(input$histVariable))
   })
   # Observe Switch Vars Button event
   observeEvent(input$switchVariables, {
