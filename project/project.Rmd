@@ -1,0 +1,172 @@
+---
+title: "Project"
+author: "Felix and Renee"
+date: "2022-11-20"
+output: html_document # need to make this pdf/doc
+editor_options: 
+  chunk_output_type: console
+params:
+    printcode: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = params$printcode)
+library(psych)
+library(RSQLite)
+library(knitr)
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+```
+
+```{r loadData}
+# Load Stations
+stations<-read.table('data/ljubljana_station_data_static.csv',sep=',',header=T)
+# Load Journeys
+journeyConn <- dbConnect(RSQLite::SQLite(), "data/20221120_journey.db")
+journeys<-dbGetQuery(journeyConn, "SELECT * FROM Journeys")
+```
+We loaded data for journeys and stations. We got `r nrow(journeys)` journeys and `r nrow(stations)` stations.
+```{r add DayOfTheWeek for everyJourney}
+journeys$timestampStartDayOfWeek<-wday(as.Date(journeys$timestampStart), label=TRUE)
+journeys$timestampEndDayOfWeek<-wday(as.Date(journeys$timestampEnd), label=TRUE)
+```
+
+We added the Days of the Week for each Journey.`r nrow(journeys[journeys$timestampStartDayOfWeek != journeys$timestampEndDayOfWeek,])` Journeys span two days. Thats `r (nrow(journeys[journeys$timestampStartDayOfWeek != journeys$timestampEndDayOfWeek,])/nrow(journeys))*100`%. For further analysis we will therefore only use the starting day of a Journey, since the effect will be minimal.
+
+## 1. What are the most popular stations in Ljubljana?
+### all stations
+
+```{r group Journeys by stationStart add Names from stations and sort}
+journeys_grouped_stationStart <-
+  journeys %>% group_by(stationStart) %>%
+  summarise(total_count = n(), .groups = 'rowwise') %>%
+  as.data.frame()
+
+journeys_grouped_stationStart <-
+  merge(journeys_grouped_stationStart,
+        stations[, c('Number', 'Name')],
+        by.x = 'stationStart',
+        by.y = 'Number')
+
+# Group by totalCount decreasing
+journeys_grouped_stationStart <-
+  journeys_grouped_stationStart[order(journeys_grouped_stationStart$total_count, decreasing = TRUE), ]
+```
+
+```{r plot all start Stations, fig.height = 10}
+ggplot(journeys_grouped_stationStart,
+       aes(x = reorder(Name,-total_count), y = total_count)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+
+### a. For starting at ending journeys
+### Start stations
+```{r group Journeys by stationStart add Names from stations and sort top}
+journeys_grouped_stationStart <-
+  journeys %>% group_by(stationStart) %>%
+  summarise(total_count = n(), .groups = 'rowwise') %>%
+  as.data.frame()
+
+journeys_grouped_stationStart <-
+  merge(journeys_grouped_stationStart,
+        stations[, c('Number', 'Name')],
+        by.x = 'stationStart',
+        by.y = 'Number')
+
+# Group by totalCount decreasing
+journeys_grouped_stationStart <-
+  journeys_grouped_stationStart[order(journeys_grouped_stationStart$total_count, decreasing = TRUE), ]
+journeys_grouped_stationStart_top10 <-
+  journeys_grouped_stationStart[1:10, ]
+```
+
+
+```{r plot top start Stations}
+ggplot(journeys_grouped_stationStart_top10,
+       aes(x = reorder(Name,-total_count), y = total_count)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+
+### End stations
+
+```{r group Journeys by stationEnd add Names from stations and sort}
+journeys_grouped_stationEnd <- journeys %>% group_by(stationEnd) %>%
+  summarise(total_count = n(), .groups = 'rowwise') %>%
+  as.data.frame()
+
+journeys_grouped_stationEnd <-
+  merge(journeys_grouped_stationEnd,
+        stations[, c('Number', 'Name')],
+        by.x = 'stationEnd',
+        by.y = 'Number')
+
+# Group by totalCount decreasing
+journeys_grouped_stationEnd <-
+  journeys_grouped_stationEnd[order(journeys_grouped_stationEnd$total_count, decreasing = TRUE), ]
+journeys_grouped_stationEnd_top10 <-
+  journeys_grouped_stationEnd[1:10, ]
+```
+
+
+```{r plot top end Stations}
+ggplot(journeys_grouped_stationEnd_top10,
+       aes(x = reorder(Name, -total_count), y = total_count)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+
+### b. Does this change for the days of the week?
+
+```{r group Journeys by Weekdays and station}
+journeys_grouped_weekdays_stationStart <-
+  journeys %>% group_by(stationStart, timestampStartDayOfWeek) %>%
+  summarise(total_count = n(), .groups = 'rowwise') %>%
+  as.data.frame()
+
+journeys_grouped_weekdays_stationStart <-
+  merge(
+    journeys_grouped_weekdays_stationStart,
+    stations[, c('Number', 'Name')],
+    by.x = 'stationStart',
+    by.y = 'Number'
+  )
+
+preferDataFrameByWeekday <- function(dayOfWeek) {
+  df <-
+    journeys_grouped_weekdays_stationStart[journeys_grouped_weekdays_stationStart$timestampStartDayOfWeek ==
+                                             dayOfWeek,]
+  df <-
+    df[order(df$total_count, decreasing = TRUE), ] # Order by TotalCount
+  df <- df[1:10, ] # Get Top 10
+  return(df)
+}
+
+list_dataframes_by_weekday <- list()
+list_dataframes_by_weekday <-
+  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Mon')))
+list_dataframes_by_weekday <-
+  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Tue')))
+list_dataframes_by_weekday <-
+  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Wed')))
+list_dataframes_by_weekday <-
+  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Thu')))
+list_dataframes_by_weekday <-
+  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Fri')))
+list_dataframes_by_weekday <-
+  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Sat')))
+list_dataframes_by_weekday <-
+  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Sun')))
+```
+
+```{r plot top stationsByWeekday}
+for(df in list_dataframes_by_weekday){
+  plot<-ggplot(df,
+       aes(x = reorder(Name, -total_count), y = total_count)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+  print(plot)
+}
+```
