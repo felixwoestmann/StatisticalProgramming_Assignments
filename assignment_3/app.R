@@ -71,6 +71,8 @@ library(shiny)
 library(shinyalert)
 library(glue)
 
+
+
 histogramSideBarPanel <- function() {
   return (sidebarPanel(
     selectInput("histVariable",
