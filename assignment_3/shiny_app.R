@@ -150,6 +150,7 @@ server <- function(input, output, session) {
   output$plotHist <- renderPlot({
     hist(movies[, input$histVariable],
          breaks = input$plotBins,
+         main =glue('Histogram of {readableNameForColumnName(input$histVariable)}'),
          xlab = input$histVariable)
   })
   # Observe Switch Vars Button event
