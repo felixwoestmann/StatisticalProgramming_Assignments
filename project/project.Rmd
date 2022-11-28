@@ -134,7 +134,7 @@ journeys_grouped_weekdays_stationStart <-
     by.y = 'Number'
   )
 
-preferDataFrameByWeekday <- function(dayOfWeek) {
+prepareDataFrameByWeekday <- function(dayOfWeek) {
   df <-
     journeys_grouped_weekdays_stationStart[journeys_grouped_weekdays_stationStart$timestampStartDayOfWeek ==
                                              dayOfWeek,]
@@ -146,27 +146,34 @@ preferDataFrameByWeekday <- function(dayOfWeek) {
 
 list_dataframes_by_weekday <- list()
 list_dataframes_by_weekday <-
-  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Mon')))
+  append(list_dataframes_by_weekday, list(prepareDataFrameByWeekday('Mon')))
 list_dataframes_by_weekday <-
-  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Tue')))
+  append(list_dataframes_by_weekday, list(prepareDataFrameByWeekday('Tue')))
 list_dataframes_by_weekday <-
-  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Wed')))
+  append(list_dataframes_by_weekday, list(prepareDataFrameByWeekday('Wed')))
 list_dataframes_by_weekday <-
-  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Thu')))
+  append(list_dataframes_by_weekday, list(prepareDataFrameByWeekday('Thu')))
 list_dataframes_by_weekday <-
-  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Fri')))
+  append(list_dataframes_by_weekday, list(prepareDataFrameByWeekday('Fri')))
 list_dataframes_by_weekday <-
-  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Sat')))
+  append(list_dataframes_by_weekday, list(prepareDataFrameByWeekday('Sat')))
 list_dataframes_by_weekday <-
-  append(list_dataframes_by_weekday, list(preferDataFrameByWeekday('Sun')))
+  append(list_dataframes_by_weekday, list(prepareDataFrameByWeekday('Sun')))
 ```
 
-```{r plot top stationsByWeekday}
+```{r plot top startStationsByWeekday}
 for(df in list_dataframes_by_weekday){
   plot<-ggplot(df,
        aes(x = reorder(Name, -total_count), y = total_count)) +
   geom_bar(stat = "identity") +
   coord_flip()
   print(plot)
+}
+```
+
+## Journey count by weekday
+
+```{r plot top journeys by weekday}
+
 }
 ```
