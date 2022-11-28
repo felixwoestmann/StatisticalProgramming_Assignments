@@ -3,10 +3,11 @@ library(RSQLite)
 library(data.table)
 library(dplyr)
 library(lubridate)
+library(ggplot2)
 
 
 # LOAD OBSERVATION DATA TO DO QUALITY CONTROL ----------------------------------
-observationConn <- dbConnect(SQLite(), "data/20221120_bike_observations.db")
+observationConn <- dbConnect(SQLite(), "data/20221127_bike_observations.db")
 observations <- dbGetQuery(observationConn, "SELECT id,timestamp,bikeNumber FROM BikeObservations")
 colnames(observations) <- c('id', 'timestamp', 'bike_number')
 observations$timestamp <- as.POSIXct(observations$timestamp, format =
@@ -18,7 +19,7 @@ stations <- read.table('data/ljubljana_station_data_static.csv', sep = ',',
 stations <- stations[, -3] # Remove address clolumn
 colnames(stations) <- c('number', 'name', 'lat', 'lon')
 # LOAD JOURNEY DATA -----------------------------------------------------------
-journeyConn <- dbConnect(SQLite(), "data/20221120_journey.db")
+journeyConn <- dbConnect(SQLite(), "data/20221127_journey.db")
 journeys <- dbGetQuery(journeyConn, "SELECT * FROM Journeys")
 
 colnames(journeys) <- c('id', 'timestamp_start', 'timestamp_end',
@@ -52,10 +53,11 @@ weather_data$timestamp <- as.POSIXct(weather_data$timestamp, format =
 journeys$timestamp <- journeys$timestamp_start
 journeys[, 'avg_temperature_celsisus'] <- NA
 setDT(journeys)[, avg_temperature_celsisus := setDT(weather_data)[journeys,
-                                                                  avg_temperature_celsisus, on = "timestamp", roll =
-                                                                    "nearest"]]
+                                                                  avg_temperature_celsisus,
+                                                                  on = "timestamp",
+                                                                  roll = "nearest"]]
 # Delete the dummy timestamp column
-journeys <- journeys[, -13]
+journeys <- journeys[, -15]
 
 # START SHINY CODE ------------------------------------------------------------
 
@@ -81,8 +83,8 @@ timeBlocksTabPanel <- function() {
              requests we know that one request failed around every 2 hours. Considering we were doing 120 Minutes / 3
               Minutes between requests for 84 station = 3360 in two hours this is a percentage of 0.02% which is
               totally fine.'),
-             plotOutput('timeBlocksObservations'),
-             plotOutput('timeBlocksJourneys'),
+             plotOutput('timeBlocksObservations', width = '100%', height = '400px'),
+             plotOutput('timeBlocksJourneys', width = '100%', height = '400px'),
     )
   )
 }
@@ -104,6 +106,7 @@ ui <- fluidPage(
       timeBlocksTabPanel(),
       journeyByWeekdayPanel()
     ),
+    width = 12
   ),
 )
 
@@ -154,7 +157,7 @@ server <- function(input, output) {
     )
   })
 
-  output$journeysByWeekend <- renderPlot({
+  output$journeyByWeekend <- renderPlot({
     journeys_by_weekend <- journeys %>%
       group_by(is_weekend) %>%
       summarise(n = n())
