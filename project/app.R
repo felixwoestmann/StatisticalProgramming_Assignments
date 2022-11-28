@@ -6,8 +6,6 @@ library(lubridate)
 library(ggplot2)
 library(treemap)
 library(plotly)
-Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hqMTEifQ.Szpy3fIYLgIWNZkdFU5PHg')
-
 
 # LOAD OBSERVATION DATA TO DO QUALITY CONTROL ----------------------------------
 observationConn <- dbConnect(SQLite(), "data/20221127_bike_observations.db")
@@ -75,7 +73,7 @@ seven_value_color_palette <- c("#F94144", "#F3722C", "#F9C74F",
 
 overViewTabPanel <- function() {
   return(
-    tabPanel('Overview Jpurney Table',
+    tabPanel('Overview Journey Table',
              tableOutput('overviewTable'),
 
     )
@@ -104,8 +102,10 @@ timeBlocksTabPanel <- function() {
 popularStationsPanel <- function() {
   return(
     tabPanel('Popular Stations',
-             plotOutput('popularStationsBarPlot'),
-             plotOutput('popularStationsTreePlot'),
+             splitLayout(
+               cellWidths = c("50%", "50%"),
+               plotOutput('popularStationsBarPlot'),
+               plotOutput('popularStationsTreePlot')),
              plotlyOutput('popularStationsMapPlot'),)
   )
 }
@@ -251,6 +251,8 @@ server <- function(input, output) {
   })
 
   output$popularStationsMapPlot <- renderPlotly({
+    Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hqMTEifQ
+.Szpy3fIYLgIWNZkdFU5PHg')
     # Group journeys by station_start and count those
     popular_stations <- journeys %>%
       group_by(station_start) %>%
@@ -259,20 +261,20 @@ server <- function(input, output) {
       head(10)
 
     # merge popular_stations together with stations to obtain the name
-    popular_stations <- merge(popular_stations, stations[, c('number', 'name', 'lat', 'lon')], by.x =
-      "station_start", by.y =
-                                "number")
+    popular_stations <- merge(popular_stations,
+                              stations[, c('number', 'name', 'lat', 'lon')],
+                              by.x = "station_start",
+                              by.y = "number")
 
     plot_mapbox(popular_stations) %>%
       add_segments(x = -100, xend = -50, y = 50, yend = 75) %>%
       layout(
-        mapbox = list(style = "dark", zoom = 11,
+        mapbox = list(style = "dark", zoom = 12,
                       center = list(lon = 14.5, lat = 46.05))) %>%
       add_markers(
         x = ~lon,
         y = ~lat,
         size = ~n,
-        sizemode = 'diameter',
         colors = "Accent",
         text = ~name,
         hoverinfo = "text",
