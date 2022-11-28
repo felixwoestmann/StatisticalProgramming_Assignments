@@ -4,7 +4,7 @@ library(data.table)
 library(dplyr)
 library(lubridate)
 library(ggplot2)
-
+library(treemap)
 
 # LOAD OBSERVATION DATA TO DO QUALITY CONTROL ----------------------------------
 observationConn <- dbConnect(SQLite(), "data/20221127_bike_observations.db")
@@ -61,6 +61,9 @@ journeys <- journeys[, -15]
 
 # START SHINY CODE ------------------------------------------------------------
 
+seven_value_color_palette <- c("#F94144", "#F3722C", "#F9C74F",
+                               "#90BE6D", "#43AA8B", "#577590", "#277DA1")
+
 overViewTabPanel <- function() {
   return(
     tabPanel('Overview Jpurney Table',
@@ -89,6 +92,15 @@ timeBlocksTabPanel <- function() {
   )
 }
 
+popularStationsPanel <- function() {
+  return(
+    tabPanel('Popular Stations',
+             plotOutput('popularStationsBarPlot'),
+             plotOutput('popularStationsMosaicPlot'),
+             plotOutput('popularStationsMap'),)
+  )
+}
+
 journeyByWeekdayPanel <- function() {
   return(
     tabPanel('Journeys by Weekday',
@@ -104,7 +116,8 @@ ui <- fluidPage(
     tabsetPanel(
       overViewTabPanel(),
       timeBlocksTabPanel(),
-      journeyByWeekdayPanel()
+      journeyByWeekdayPanel(),
+      popularStationsPanel(),
     ),
     width = 12
   ),
@@ -123,11 +136,25 @@ server <- function(input, output) {
     counted_chunks$chunks <- as.POSIXct(counted_chunks$chunks, format =
       "%Y-%m-%d %H:%M:%S")
 
+    color_vector <- wday(counted_chunks$chunks, label = TRUE)
+    color_vector <- as.character(color_vector)
+    color_vector[color_vector == "Mon"] <- seven_value_color_palette[1]
+    color_vector[color_vector == "Tue"] <- seven_value_color_palette[2]
+    color_vector[color_vector == "Wed"] <- seven_value_color_palette[3]
+    color_vector[color_vector == "Thu"] <- seven_value_color_palette[4]
+    color_vector[color_vector == "Fri"] <- seven_value_color_palette[5]
+    color_vector[color_vector == "Sat"] <- seven_value_color_palette[6]
+    color_vector[color_vector == "Sun"] <- seven_value_color_palette[7]
+
     barplot(counted_chunks$n,
             names.arg = substring(counted_chunks$chunks, 1, 16),
             ylab = "Number of journeys",
             main = "Number of journeys per half hour block",
             las = 2,
+            border = NA,
+            col = color_vector,
+            density = 100,
+            # TODO add legend
     )
   })
 
@@ -170,6 +197,48 @@ server <- function(input, output) {
             main = "Number of journeys by weekend / weekday",
             las = 2,
     )
+  })
+
+
+  output$popularStationsBarPlot <- renderPlot({
+    # Group journeys by station_start and count those
+    popular_stations <- journeys %>%
+      group_by(station_start) %>%
+      summarise(n = n()) %>%
+      arrange(desc(n)) %>%
+      head(10)
+
+    # merge popular_stations together with stations to obtain the name
+    popular_stations <- merge(popular_stations, stations[, c('number', 'name')], by.x = "station_start", by.y =
+      "number")
+
+    barplot(popular_stations$n,
+            names.arg = popular_stations$name,
+            ylab = "Number of journeys",
+            main = "Number of journeys per station",
+            las = 2,
+    )
+  })
+
+  output$popularStationsMosaicPlot <- renderPlot({
+    # Group journeys by station_start and count those
+    popular_stations <- journeys %>%
+      group_by(station_start) %>%
+      summarise(n = n()) %>%
+      arrange(desc(n)) %>%
+        head(10)
+
+    # merge popular_stations together with stations to obtain the name
+    popular_stations <- merge(popular_stations, stations[, c('number', 'name')], by.x = "station_start", by.y =
+      "number")
+
+    treemap(popular_stations,
+            title = "Treemap of the most popular stations",
+            index = "name",
+            vSize = "n",
+            type = "index"
+    )
+
   })
 
 }
