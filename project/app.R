@@ -119,14 +119,23 @@ journeyByWeekdayPanel <- function() {
   )
 }
 
+journeyTemperaturePanel <- function() {
+  return(
+    tabPanel('Journey Temperature',
+             plotOutput('journeyTemperature'),
+    )
+  )
+}
+
 ui <- fluidPage(
-  titlePanel("Titlepanel"),
+  titlePanel("BicikeLJ"),
   mainPanel(
     tabsetPanel(
       overViewTabPanel(),
       timeBlocksTabPanel(),
       journeyByWeekdayPanel(),
       popularStationsPanel(),
+      journeyTemperaturePanel()
     ),
     width = 12
   ),
@@ -252,7 +261,7 @@ server <- function(input, output) {
 
   output$popularStationsMapPlot <- renderPlotly({
     Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hqMTEifQ
-.Szpy3fIYLgIWNZkdFU5PHg')
+    .Szpy3fIYLgIWNZkdFU5PHg')
     # Group journeys by station_start and count those
     popular_stations <- journeys %>%
       group_by(station_start) %>%
@@ -283,6 +292,47 @@ server <- function(input, output) {
 
   })
 
+
+  output$journeyTemperature <- renderPlot({
+    journeys$chunks <- cut(journeys$timestamp_start, breaks = "60 min")
+    journeys$chunks <- as.POSIXct(journeys$chunks,
+                                  format = "%Y-%m-%d %H:%M:%S")
+    journeys_by_temperature <- journeys %>%
+      group_by(chunks) %>%
+      summarise(mean_temperature = mean(avg_temperature_celsisus),
+                n = n())
+    # add a column with the hour of the day
+    journeys_by_temperature$hour <- as.numeric(format(journeys_by_temperature$chunks, "%H"))
+    ## add morning, afternoon, evening and night
+    ## 7am sunrise on 14th of November
+    journeys_by_temperature$daytime <- ifelse(journeys_by_temperature$hour >= 7 & journeys_by_temperature$hour < 12,
+                                              "morning",
+                                              ifelse(journeys_by_temperature$hour >= 12 & journeys_by_temperature$hour < 18,
+                                                     "afternoon",
+                                                     ifelse(journeys_by_temperature$hour >= 18 & journeys_by_temperature$hour < 24,
+                                                            "evening",
+                                                            "night")))
+    # set color based on daytime
+    journeys_by_temperature$color <- ifelse(journeys_by_temperature$daytime == "morning",
+                                            "red",
+                                            ifelse(journeys_by_temperature$daytime == "afternoon",
+                                                   "green",
+                                                   ifelse(journeys_by_temperature$daytime == "evening",
+                                                          "blue",
+                                                          "black")))
+    ####----####
+    # weird values stem from missing temperature data!
+    # Lets remove them badly and fix it later
+    journeys_by_temperature <- journeys_by_temperature %>% filter(mean_temperature != 3.1)
+    ###-----###
+    plot(journeys_by_temperature$n,
+         journeys_by_temperature$mean_temperature,
+         xlab = "Number of journeys",
+         ylab = "Temperature",
+         main = "Number of journeys per temperature",
+         col = journeys_by_temperature$color,
+    )
+  })
 }
 
 
