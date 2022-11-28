@@ -1,4 +1,5 @@
 library(shiny)
+library(shinyWidgets)
 library(RSQLite)
 library(data.table)
 library(dplyr)
@@ -6,6 +7,7 @@ library(lubridate)
 library(ggplot2)
 library(treemap)
 library(plotly)
+library(glue)
 
 # LOAD OBSERVATION DATA TO DO QUALITY CONTROL ----------------------------------
 observationConn <- dbConnect(SQLite(), "data/20221127_bike_observations.db")
@@ -17,11 +19,12 @@ observations <- dbGetQuery(observationConn,
                            WHERE id % 3 = 0") # only use every third observation as a means of sampling and to aid
 # loading times
 
-observations$timestamp <- as.POSIXct(observations$timestamp, format =
-  "%Y-%m-%d %H:%M:%S")
+observations$timestamp <- as.POSIXct(observations$timestamp,
+                                     format = "%Y-%m-%d %H:%M:%S")
 
 # LOAD STATIC STATION DATA ----------------------------------------------------
-stations <- read.table('data/ljubljana_station_data_static.csv', sep = ',',
+stations <- read.table('data/ljubljana_station_data_static.csv',
+                       sep = ',',
                        header = T)
 stations <- stations[, -3] # Remove address clolumn
 colnames(stations) <- c('number', 'name', 'lat', 'lon')
@@ -35,10 +38,10 @@ colnames(journeys) <- c('id', 'timestamp_start', 'timestamp_end',
                         'location_end_lat', 'location_end_lon',
                         'distance_meters', 'time_minutes')
 
-journeys$timestamp_start <- as.POSIXct(journeys$timestamp_start, format =
-  "%Y-%m-%d %H:%M:%S")
-journeys$timestamp_end <- as.POSIXct(journeys$timestamp_end, format =
-  "%Y-%m-%d %H:%M:%S")
+journeys$timestamp_start <- as.POSIXct(journeys$timestamp_start,
+                                       format = "%Y-%m-%d %H:%M:%S")
+journeys$timestamp_end <- as.POSIXct(journeys$timestamp_end,
+                                     format = "%Y-%m-%d %H:%M:%S")
 journeys$weekday <- wday(journeys$timestamp_start, label = TRUE)
 journeys$is_weekend <- journeys$weekday %in% c("Sat", "Sun")
 # LOAD WEATHER DATA -----------------------------------------------------------
@@ -122,7 +125,30 @@ journeyByWeekdayPanel <- function() {
 journeyTemperaturePanel <- function() {
   return(
     tabPanel('Journey Temperature',
-             plotOutput('journeyTemperature'),
+             sidebarLayout(
+               sidebarPanel(
+                 sliderTextInput('journeyTemperatureSlider',
+                                 'Select Time Bucket',
+                                 choices = c('1 hour',
+                                             '2 hour',
+                                             '4 hour',
+                                             '8 hour',
+                                             '12 hour',
+                                             '24 hour'),
+                 ),
+               ),
+               mainPanel(
+                 plotOutput('journeyTemperaturePlot')
+               )
+             )
+    )
+  )
+}
+
+journeyTimeOfDayPanel <- function() {
+  return(
+    tabPanel('Journey Time of Day',
+             plotOutput('journeyTimeOfDay'),
     )
   )
 }
@@ -135,7 +161,8 @@ ui <- fluidPage(
       timeBlocksTabPanel(),
       journeyByWeekdayPanel(),
       popularStationsPanel(),
-      journeyTemperaturePanel()
+      journeyTemperaturePanel(),
+      journeyTimeOfDayPanel()
     ),
     width = 12
   ),
@@ -293,46 +320,80 @@ server <- function(input, output) {
   })
 
 
-  output$journeyTemperature <- renderPlot({
-    journeys$chunks <- cut(journeys$timestamp_start, breaks = "60 min")
-    journeys$chunks <- as.POSIXct(journeys$chunks,
-                                  format = "%Y-%m-%d %H:%M:%S")
-    journeys_by_temperature <- journeys %>%
+  output$journeyTemperaturePlot <- renderPlot({
+    binSize <- input$journeyTemperatureSlider
+    journeys_by_temperature <- journeys
+    journeys_by_temperature$chunks <- cut(journeys_by_temperature$timestamp_start, breaks = binSize)
+    journeys_by_temperature$chunks <- as.POSIXct(journeys_by_temperature$chunks,
+                                                 format = "%Y-%m-%d %H:%M:%S")
+    journeys_by_daytime <- journeys_by_temperature %>%
       group_by(chunks) %>%
       summarise(mean_temperature = mean(avg_temperature_celsisus),
                 n = n())
+
     # add a column with the hour of the day
-    journeys_by_temperature$hour <- as.numeric(format(journeys_by_temperature$chunks, "%H"))
+    journeys_by_daytime$hour <- as.numeric(format(journeys_by_daytime$chunks, "%H"))
     ## add morning, afternoon, evening and night
     ## 7am sunrise on 14th of November
-    journeys_by_temperature$daytime <- ifelse(journeys_by_temperature$hour >= 7 & journeys_by_temperature$hour < 12,
-                                              "morning",
-                                              ifelse(journeys_by_temperature$hour >= 12 & journeys_by_temperature$hour < 18,
-                                                     "afternoon",
-                                                     ifelse(journeys_by_temperature$hour >= 18 & journeys_by_temperature$hour < 24,
-                                                            "evening",
-                                                            "night")))
-    # set color based on daytime
-    journeys_by_temperature$color <- ifelse(journeys_by_temperature$daytime == "morning",
-                                            "red",
-                                            ifelse(journeys_by_temperature$daytime == "afternoon",
-                                                   "green",
-                                                   ifelse(journeys_by_temperature$daytime == "evening",
-                                                          "blue",
-                                                          "black")))
+    journeys_by_daytime$daytime <- ifelse(journeys_by_daytime$hour >= 6 & journeys_by_daytime$hour < 18,
+                                          "day", "night")
+
     ####----####
     # weird values stem from missing temperature data!
     # Lets remove them badly and fix it later
-    journeys_by_temperature <- journeys_by_temperature %>% filter(mean_temperature != 3.1)
-    ###-----###
-    plot(journeys_by_temperature$n,
-         journeys_by_temperature$mean_temperature,
-         xlab = "Number of journeys",
-         ylab = "Temperature",
-         main = "Number of journeys per temperature",
-         col = journeys_by_temperature$color,
-    )
+    journeys_by_daytime <- journeys_by_daytime %>% filter(mean_temperature != 3.1)
+
+    ggplot(journeys_by_daytime, aes(x = mean_temperature, y = n, color = daytime)) +
+      geom_point(size = 2, shape = 23)
+
+    # plot(journeys_by_daytime$mean_temperature,
+    #      journeys_by_daytime$n,
+    #      xlab = "Temperature",
+    #      ylab = "Number of journeys",
+    #      main = "Number of journeys per temperature",
+    #      col = journeys_by_daytime$color,
+    # )
   })
+
+  output$journeyTimeOfDay <- renderPlot({
+    journeys_by_daytime <- journeys
+    journeys_by_daytime$timestamp_start <- as.POSIXct(journeys_by_daytime$timestamp_start,
+                                                      format = "%Y-%m-%d %H:%M:%S")
+    journeys_by_daytime$hour <- as.numeric(format(journeys_by_daytime$timestamp_start, "%H"))
+    journeys_by_daytime$day <- as.numeric(format(journeys_by_daytime$timestamp_start, "%d"))
+
+    journeys_by_daytime$daytime <- ifelse(journeys_by_daytime$hour >= 7 & journeys_by_daytime$hour < 12,
+                                          "morning",
+                                          ifelse(journeys_by_daytime$hour >= 12 &
+                                                   journeys_by_daytime$hour < 18,
+                                                 "afternoon",
+                                                 ifelse(journeys_by_daytime$hour >= 18 &
+                                                          journeys_by_daytime$hour < 24,
+                                                        "evening",
+                                                        "night")))
+
+    journeys_by_daytime <- journeys_by_daytime %>%
+      group_by(day, daytime) %>%
+      summarise(n = n())
+
+    journeys_by_daytime$color <- sapply(
+      journeys_by_daytime$daytime,
+      switch,
+      "morning" = seven_value_color_palette[1],
+      "afternoon" = seven_value_color_palette[2],
+      "evening" = seven_value_color_palette[3],
+      "night" = seven_value_color_palette[4],
+      stop("Unknown value"))
+
+    ggplot(journeys_by_daytime, aes(fill = daytime, y = n, x = day)) +
+      geom_bar(position = "stack", stat = "identity") +
+      labs(y = "Number of journeys", x = "Day of November") +
+      scale_x_continuous(breaks = round(seq(min(journeys_by_daytime$day), max(journeys_by_daytime$day), by = 1), 0)) +
+      scale_fill_manual(values = seven_value_color_palette)
+  }
+
+  )
+
 }
 
 
