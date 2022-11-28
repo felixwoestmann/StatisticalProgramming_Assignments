@@ -8,8 +8,13 @@ library(treemap)
 
 # LOAD OBSERVATION DATA TO DO QUALITY CONTROL ----------------------------------
 observationConn <- dbConnect(SQLite(), "data/20221127_bike_observations.db")
-observations <- dbGetQuery(observationConn, "SELECT id,timestamp,bikeNumber FROM BikeObservations")
-colnames(observations) <- c('id', 'timestamp', 'bike_number')
+observations <- dbGetQuery(observationConn,
+                           "SELECT id,
+                           Timestamp as timestamp,
+                           bikeNumber as bike_number
+                           FROM BikeObservations
+                           WHERE id % 3 = 0") # only use every third observation as a means of sampling and to aid loading times
+
 observations$timestamp <- as.POSIXct(observations$timestamp, format =
   "%Y-%m-%d %H:%M:%S")
 
@@ -226,7 +231,7 @@ server <- function(input, output) {
       group_by(station_start) %>%
       summarise(n = n()) %>%
       arrange(desc(n)) %>%
-        head(10)
+      head(10)
 
     # merge popular_stations together with stations to obtain the name
     popular_stations <- merge(popular_stations, stations[, c('number', 'name')], by.x = "station_start", by.y =
