@@ -8,16 +8,24 @@ library(ggplot2)
 library(treemap)
 library(plotly)
 library(glue)
+library(stringr)
+
+mapbox_token <- 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hqMTEifQ.Szpy3fIYLgIWNZkdFU5PHg'
+Sys.setenv('MAPBOX_TOKEN' = mapbox_token)
 
 # LOAD OBSERVATION DATA TO DO QUALITY CONTROL ----------------------------------
-observationConn <- dbConnect(SQLite(), "data/20221127_bike_observations.db")
+observationConn <- dbConnect(SQLite(), "data/20221201_bike_observations.db")
 observations <- dbGetQuery(observationConn,
                            "SELECT id,
                            Timestamp as timestamp,
                            bikeNumber as bike_number
                            FROM BikeObservations
-                           WHERE id % 3 = 0") # only use every third observation as a means of sampling and to aid
+                           WHERE id % 3 = 0
+                           AND Timestamp > '2022-11-15 15:00:00'
+                           AND Timestamp < '2022-11-30 00:00:00'")
 # loading times
+unique_bikes <- dbGetQuery(observationConn, "SELECT COUNT(DISTINCT bikeNumber) FROM BikeObservations")
+unique_bikes <- unique_bikes[[1]]
 
 observations$timestamp <- as.POSIXct(observations$timestamp,
                                      format = "%Y-%m-%d %H:%M:%S")
@@ -29,8 +37,15 @@ stations <- read.table('data/ljubljana_station_data_static.csv',
 stations <- stations[, -3] # Remove address clolumn
 colnames(stations) <- c('number', 'name', 'lat', 'lon')
 # LOAD JOURNEY DATA -----------------------------------------------------------
-journeyConn <- dbConnect(SQLite(), "data/20221127_journey.db")
-journeys <- dbGetQuery(journeyConn, "SELECT * FROM Journeys")
+# When plotting our data we can see that there is a massive spike of journeys around 15.11 9:00 am
+# We saw that while looking at the quality of our data. Therefore we will remove data from the start till 15.11 12am
+journeyConn <- dbConnect(SQLite(), "data/20221201_journey.db")
+journeys <- dbGetQuery(journeyConn,
+                       "SELECT *
+                        FROM Journeys
+                        WHERE timestampStart > '2022-11-15 15:00:00'
+                        AND timestampEnd > '2022-11-15 15:00:00'
+                        AND timestampStart < '2022-11-30 00:00:00'")
 
 colnames(journeys) <- c('id', 'timestamp_start', 'timestamp_end',
                         'bike_number', 'station_start', 'station_end',
@@ -98,6 +113,7 @@ timeBlocksTabPanel <- function() {
               totally fine.'),
              plotOutput('timeBlocksObservations', width = '100%', height = '400px'),
              plotOutput('timeBlocksJourneys', width = '100%', height = '400px'),
+             plotOutput('weatherPlot', width = '100%', height = '400px')
     )
   )
 }
@@ -153,6 +169,14 @@ journeyTimeOfDayPanel <- function() {
   )
 }
 
+popularJourneysPanel <- function() {
+  return(
+    tabPanel('Popular Journeys',
+             plotlyOutput('popularJourneysPanel'),
+    )
+  )
+}
+
 ui <- fluidPage(
   titlePanel("BicikeLJ"),
   mainPanel(
@@ -162,7 +186,8 @@ ui <- fluidPage(
       journeyByWeekdayPanel(),
       popularStationsPanel(),
       journeyTemperaturePanel(),
-      journeyTimeOfDayPanel()
+      journeyTimeOfDayPanel(),
+      popularJourneysPanel()
     ),
     width = 12
   ),
@@ -217,6 +242,13 @@ server <- function(input, output) {
     )
 
   })
+
+  output$weatherPlot <- renderPlot({
+    ggplot(weather_data, aes(x = timestamp, y = avg_temperature_celsisus,)) +
+      ggtitle("Avg air temperatur Ljubljana") +
+      geom_line()
+  })
+
   output$journeyByWeekday <- renderPlot({
     journeys_by_weekday <- journeys %>%
       group_by(weekday) %>%
@@ -287,8 +319,6 @@ server <- function(input, output) {
   })
 
   output$popularStationsMapPlot <- renderPlotly({
-    Sys.setenv('MAPBOX_TOKEN' = 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hqMTEifQ
-    .Szpy3fIYLgIWNZkdFU5PHg')
     # Group journeys by station_start and count those
     popular_stations <- journeys %>%
       group_by(station_start) %>%
@@ -338,21 +368,11 @@ server <- function(input, output) {
     journeys_by_daytime$daytime <- ifelse(journeys_by_daytime$hour >= 6 & journeys_by_daytime$hour < 18,
                                           "day", "night")
 
-    ####----####
-    # weird values stem from missing temperature data!
-    # Lets remove them badly and fix it later
-    journeys_by_daytime <- journeys_by_daytime %>% filter(mean_temperature != 3.1)
-
     ggplot(journeys_by_daytime, aes(x = mean_temperature, y = n, color = daytime)) +
       geom_point(size = 2, shape = 23)
-
-    # plot(journeys_by_daytime$mean_temperature,
-    #      journeys_by_daytime$n,
-    #      xlab = "Temperature",
-    #      ylab = "Number of journeys",
-    #      main = "Number of journeys per temperature",
-    #      col = journeys_by_daytime$color,
-    # )
+    # Add a 'ceiling' to the plot which represent the theoretical number of journeys possible at one point in time
+    # This number is likely an overestimate, since it would count bikes which are replaced since they were broken
+    # for example
   })
 
   output$journeyTimeOfDay <- renderPlot({
@@ -393,6 +413,52 @@ server <- function(input, output) {
   }
 
   )
+
+  output$popularJourneysPanel <- renderPlotly({
+    # group dataframe so that it doesnt matter if a station was start or end
+    popular_journeys <- journeys %>%
+      group_by(station_one = pmin(station_start, station_end), station_two = pmax(station_start, station_end)) %>%
+      summarise(n = n()) %>%
+      arrange(desc(n)) %>%
+      head(10) %>%
+      mutate(
+        station_start_name = stations[match(station_one, stations$number), "name"],
+        station_end_name = stations[match(station_two, stations$number), "name"],
+        latStart = stations[match(station_one, stations$number), "lat"],
+        lonStart = stations[match(station_one, stations$number), "lon"],
+        latEnd = stations[match(station_two, stations$number), "lat"],
+        lonEnd = stations[match(station_two, stations$number), "lon"]
+      )
+
+    plot_mapbox(popular_journeys) %>%
+      add_segments(x = -100,
+                   xend = -50,
+                   y = 50,
+                   yend = 75) %>%
+      layout(
+        mapbox = list(style = "dark",
+                      zoom = 12,
+                      center = list(lon = 14.5, lat = 46.05))) %>%
+      add_segments(
+        x = ~lonStart, xend = ~lonEnd,
+        y = ~latStart, yend = ~latEnd,
+        colors = "Accent",
+        text = ~n,
+        hoverinfo = "text") %>%
+      add_markers(
+        x = ~lonStart,
+        y = ~latStart,
+        colors = "green",
+        hoverinfo = "text",
+        showlegend = FALSE,) %>%
+      add_markers(
+        x = ~lonEnd,
+        y = ~latEnd,
+        colors = "green",
+        hoverinfo = "text",
+        showlegend = FALSE,) %>%
+      config(mapboxAccessToken = mapbox_token)
+  })
 
 }
 
