@@ -206,15 +206,7 @@ server <- function(input, output) {
     counted_chunks$chunks <- as.POSIXct(counted_chunks$chunks, format =
       "%Y-%m-%d %H:%M:%S")
 
-    color_vector <- wday(counted_chunks$chunks, label = TRUE)
-    color_vector <- as.character(color_vector)
-    color_vector[color_vector == "Mon"] <- seven_value_color_palette[1]
-    color_vector[color_vector == "Tue"] <- seven_value_color_palette[2]
-    color_vector[color_vector == "Wed"] <- seven_value_color_palette[3]
-    color_vector[color_vector == "Thu"] <- seven_value_color_palette[4]
-    color_vector[color_vector == "Fri"] <- seven_value_color_palette[5]
-    color_vector[color_vector == "Sat"] <- seven_value_color_palette[6]
-    color_vector[color_vector == "Sun"] <- seven_value_color_palette[7]
+    counted_chunks$weekday <- wday(counted_chunks$chunks, label = TRUE)
 
     barplot(counted_chunks$n,
             names.arg = substring(counted_chunks$chunks, 1, 16),
@@ -222,9 +214,10 @@ server <- function(input, output) {
             main = "Number of journeys per half hour block",
             las = 2,
             border = NA,
-            col = color_vector,
+            col = counted_chunks$weekday,
             density = 100,
-            # TODO add legend
+            legend = TRUE,
+
     )
   })
 
@@ -245,7 +238,9 @@ server <- function(input, output) {
 
   output$weatherPlot <- renderPlot({
     ggplot(weather_data, aes(x = timestamp, y = avg_temperature_celsisus,)) +
-      ggtitle("Avg air temperatur Ljubljana") +
+      ggtitle("Average air temperatur Ljubljana") +
+      xlab("Time") +
+      ylab("Temperature in °C") +
       geom_line()
   })
 
@@ -395,15 +390,6 @@ server <- function(input, output) {
     journeys_by_daytime <- journeys_by_daytime %>%
       group_by(day, daytime) %>%
       summarise(n = n())
-
-    journeys_by_daytime$color <- sapply(
-      journeys_by_daytime$daytime,
-      switch,
-      "morning" = seven_value_color_palette[1],
-      "afternoon" = seven_value_color_palette[2],
-      "evening" = seven_value_color_palette[3],
-      "night" = seven_value_color_palette[4],
-      stop("Unknown value"))
 
     ggplot(journeys_by_daytime, aes(fill = daytime, y = n, x = day)) +
       geom_bar(position = "stack", stat = "identity") +
