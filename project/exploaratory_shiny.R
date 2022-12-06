@@ -13,7 +13,7 @@ library(stringr)
 mapbox_token <- 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hqMTEifQ.Szpy3fIYLgIWNZkdFU5PHg'
 Sys.setenv('MAPBOX_TOKEN' = mapbox_token)
 
-# LOAD OBSERVATION DATA TO DO QUALITY CONTROL ----------------------------------
+# LOAD OBSERVATION DATA TO DO QUALITY CONTROL ------------------------------
 observationConn <- dbConnect(SQLite(), "data/20221201_bike_observations.db")
 observations <- dbGetQuery(observationConn,
                            "SELECT id,

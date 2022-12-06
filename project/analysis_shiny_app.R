@@ -81,7 +81,7 @@ setDT(journeys)[, avg_temperature_celsisus := setDT(weather_data)[journeys,
                                                                   avg_temperature_celsisus,
                                                                   on = "timestamp",
                                                                   roll = "nearest"]]
-# Delete the dummy timestamp column
+# Delete the dummy timestamp column yeeeeeee
 journeys <- journeys[, -15]
 
 
