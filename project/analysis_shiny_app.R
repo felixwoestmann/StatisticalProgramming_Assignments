@@ -72,12 +72,22 @@ journeys <- journeys[, -15]
 ui <- fluidPage(
   titlePanel("BicikeLJ"),
   mainPanel(
-  ),
-  width = 12
-)
+    tabsetPanel(
+      tabPanel('1. Popular Stations',
+               sliderInput('numberOfStations'),
+               plotOutput('popStationsHistogram'),
+      )
+    ),
+    width = 12
+  )
 
 
-server <- function(input, output) { }
+  server <- function(input, output) {
+    output$popStationsHistogram <- renderPlot({
+      numberOfStations<-input$numberOfStations
+    })
+
+  }
 
 
-shinyApp(ui, server)
+  shinyApp(ui, server)
