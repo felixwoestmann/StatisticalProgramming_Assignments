@@ -13,23 +13,6 @@ library(stringr)
 mapbox_token <- 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hqMTEifQ.Szpy3fIYLgIWNZkdFU5PHg'
 Sys.setenv('MAPBOX_TOKEN' = mapbox_token)
 
-# LOAD OBSERVATION DATA TO DO QUALITY CONTROL ----------------------------------
-observationConn <- dbConnect(SQLite(), "data/20221201_bike_observations.db")
-observations <- dbGetQuery(observationConn,
-                           "SELECT id,
-                           Timestamp as timestamp,
-                           bikeNumber as bike_number
-                           FROM BikeObservations
-                           WHERE id % 3 = 0
-                           AND Timestamp > '2022-11-15 15:00:00'
-                           AND Timestamp < '2022-11-30 00:00:00'")
-# loading times
-unique_bikes <- dbGetQuery(observationConn, "SELECT COUNT(DISTINCT bikeNumber) FROM BikeObservations")
-unique_bikes <- unique_bikes[[1]]
-
-observations$timestamp <- as.POSIXct(observations$timestamp,
-                                     format = "%Y-%m-%d %H:%M:%S")
-
 # LOAD STATIC STATION DATA ----------------------------------------------------
 stations <- read.table('data/ljubljana_station_data_static.csv',
                        sep = ',',
@@ -60,12 +43,13 @@ journeys$timestamp_end <- as.POSIXct(journeys$timestamp_end,
 journeys$weekday <- wday(journeys$timestamp_start, label = TRUE)
 journeys$is_weekend <- journeys$weekday %in% c("Sat", "Sun")
 # LOAD WEATHER DATA -----------------------------------------------------------
-weather_data <- read.table('data/weather_data_ljubljana.csv', sep = ',',
+weather_data <- read.table('data/weather_data_ljubljana.csv',
+                           sep = ',',
                            header = T)
 colnames(weather_data) <- c('timestamp', 'avg_temperature_celsisus')
 
-weather_data$timestamp <- as.POSIXct(weather_data$timestamp, format =
-  "%Y-%m-%d %H:%M")
+weather_data$timestamp <- as.POSIXct(weather_data$timestamp,
+                                     format = "%Y-%m-%d %H:%M")
 
 
 # ADD WEATHER DATA TO JOURNEYS ------------------------------------------------
