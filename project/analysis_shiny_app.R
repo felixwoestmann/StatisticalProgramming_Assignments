@@ -92,6 +92,7 @@ journeysGroupedByTime <- function(breaks) {
   return(journeys_grouped)
 }
 
+
 ui <- fluidPage(
   titlePanel("BicikeLJ"),
   mainPanel(
@@ -122,14 +123,7 @@ ui <- fluidPage(
                                        mainPanel(
                                          plotOutput('weatherAndDayTime'),))),
                mainPanel(sidebarLayout(sidebarPanel(
-                 h3("Daytime"),
-                 checkboxInput('showMorningCombined', label = 'Show Morning', value = TRUE,),
-                 checkboxInput('showAfternoonCombined', label = 'Show Afternoon', value = TRUE,),
-                 checkboxInput('showEveningCombined', label = 'Show Evening', value = TRUE,),
-                 checkboxInput('showNightCombined', label = 'Show Night', value = TRUE,),
-                 h3("Daytype"),
-                 checkboxInput('showWeekdayCombined', label = 'Show Weekday', value = TRUE,),
-                 checkboxInput('showWeekendCombined', label = 'Show Weekend', value = TRUE,)),
+                 h3("Combined view of selected vars from above"),),
                                        mainPanel(
                                          plotOutput('combinedDayTimeAndDaytype'),)))
       )
@@ -230,17 +224,22 @@ server <- function(input, output) {
   output$combinedDayTimeAndDaytype <- renderPlot({
     showWeekday <- TRUE
     showWeekend <- TRUE
-    showWeekday <- input$showWeekdayCombined
-    showWeekend <- input$showWeekendCombined
+    showWeekday <- input$showWeekday
+    showWeekend <- input$showWeekend
 
     showMorning <- TRUE
     showAfternoon <- TRUE
     showEvening <- TRUE
     showNight <- TRUE
-    showMorning <- input$showMorningCombined
-    showAfternoon <- input$showAfternoonCombined
-    showEvening <- input$showEveningCombined
-    showNight <- input$showNightCombined
+    showMorning <- input$showMorning
+    showAfternoon <- input$showAfternoon
+    showEvening <- input$showEvening
+    showNight <- input$showNight
+
+    showRain <- TRUE
+    showNoRain <- TRUE
+    showRain <- input$showRain
+    showNoRain <- input$showNoRain
 
     journeys_grouped <- journeysGroupedByTime('20 min')
     # Calc limits before filtering so its not affected by selected vars
@@ -261,8 +260,12 @@ server <- function(input, output) {
 
     journeys_grouped$daytype <- factor(journeys_grouped$daytype, levels = c("Weekday", "Weekend"))
 
+    journeys_grouped$rainLevel <- ifelse(journeys_grouped$mean_precipitation > 0, "Rain", "No Rain")
+    journeys_grouped$rainLevel <- factor(journeys_grouped$rainLevel, levels = c("Rain", "No Rain"))
+
     # Combine daytime and daytype
-    journeys_grouped$daytimeAndDaytype <- paste(journeys_grouped$daytime, journeys_grouped$daytype, sep = ";")
+    journeys_grouped$daytimeAndDaytypeAndRain <- paste(journeys_grouped$daytime, journeys_grouped$daytype,
+                                                       journeys_grouped$rainLevel, sep = "-")
 
     journeys_grouped <- journeys_grouped %>%
       filter(daytype == "Weekday" & showWeekday == TRUE |
@@ -270,9 +273,11 @@ server <- function(input, output) {
       filter(daytime == "Morning" & showMorning == TRUE |
                daytime == "Afternoon" & showAfternoon == TRUE |
                daytime == "Evening" & showEvening == TRUE |
-               daytime == "Night" & showNight == TRUE)
+               daytime == "Night" & showNight == TRUE) %>%
+      filter(rainLevel == "Rain" & showRain == TRUE |
+               rainLevel == "No Rain" & showNoRain == TRUE)
 
-     ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = daytimeAndDaytype)) +
+    ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = daytimeAndDaytypeAndRain)) +
       geom_point(size = 2, shape = 23) +
       lims(x = c(min_temp, max_temp), y = c(min_n, max_n))
 
