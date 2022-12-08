@@ -120,7 +120,18 @@ ui <- fluidPage(
                  checkboxInput('showEvening', label = 'Show Evening', value = TRUE,),
                  checkboxInput('showNight', label = 'Show Night', value = TRUE,)),
                                        mainPanel(
-                                         plotOutput('weatherAndDayTime'),)))
+                                         plotOutput('weatherAndDayTime'),))),
+               mainPanel(sidebarLayout(sidebarPanel(
+                 h3("Daytime"),
+                 checkboxInput('showMorningCombined', label = 'Show Morning', value = TRUE,),
+                 checkboxInput('showAfternoonCombined', label = 'Show Afternoon', value = TRUE,),
+                 checkboxInput('showEveningCombined', label = 'Show Evening', value = TRUE,),
+                 checkboxInput('showNightCombined', label = 'Show Night', value = TRUE,),
+                 h3("Daytype"),
+                 checkboxInput('showWeekdayCombined', label = 'Show Weekday', value = TRUE,),
+                 checkboxInput('showWeekendCombined', label = 'Show Weekend', value = TRUE,)),
+                                       mainPanel(
+                                         plotOutput('combinedDayTimeAndDaytype'),)))
       )
     ),
     width = 12
@@ -214,6 +225,57 @@ server <- function(input, output) {
     ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = daytime)) +
       geom_point(size = 2, shape = 23) +
       lims(x = c(min_temp, max_temp), y = c(min_n, max_n))
+  })
+
+  output$combinedDayTimeAndDaytype <- renderPlot({
+    showWeekday <- TRUE
+    showWeekend <- TRUE
+    showWeekday <- input$showWeekdayCombined
+    showWeekend <- input$showWeekendCombined
+
+    showMorning <- TRUE
+    showAfternoon <- TRUE
+    showEvening <- TRUE
+    showNight <- TRUE
+    showMorning <- input$showMorningCombined
+    showAfternoon <- input$showAfternoonCombined
+    showEvening <- input$showEveningCombined
+    showNight <- input$showNightCombined
+
+    journeys_grouped <- journeysGroupedByTime('20 min')
+    # Calc limits before filtering so its not affected by selected vars
+    max_temp <- max(journeys_grouped$mean_temperature)
+    min_temp <- min(journeys_grouped$mean_temperature)
+    max_n <- max(journeys_grouped$n)
+    min_n <- min(journeys_grouped$n)
+
+    journeys_grouped$daytime <- ifelse(hour(journeys_grouped$chunks) %in% 6:11, "Morning",
+                                       ifelse(hour(journeys_grouped$chunks) %in% 12:17, "Afternoon",
+                                              ifelse(hour(journeys_grouped$chunks) %in% 18:23, "Evening",
+                                                     ifelse(hour(journeys_grouped$chunks) %in% 0:5, "Night", NA))))
+
+    journeys_grouped$daytime <- factor(journeys_grouped$daytime, levels = c("Morning", "Afternoon", "Evening", "Night"))
+
+    journeys_grouped$daytype <- ifelse(wday(journeys_grouped$chunks, label = TRUE) %in% c("Sat", "Sun"), "Weekend",
+                                       "Weekday")
+
+    journeys_grouped$daytype <- factor(journeys_grouped$daytype, levels = c("Weekday", "Weekend"))
+
+    # Combine daytime and daytype
+    journeys_grouped$daytimeAndDaytype <- paste(journeys_grouped$daytime, journeys_grouped$daytype, sep = ";")
+
+    journeys_grouped <- journeys_grouped %>%
+      filter(daytype == "Weekday" & showWeekday == TRUE |
+               daytype == "Weekend" & showWeekend == TRUE) %>%
+      filter(daytime == "Morning" & showMorning == TRUE |
+               daytime == "Afternoon" & showAfternoon == TRUE |
+               daytime == "Evening" & showEvening == TRUE |
+               daytime == "Night" & showNight == TRUE)
+
+     ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = daytimeAndDaytype)) +
+      geom_point(size = 2, shape = 23) +
+      lims(x = c(min_temp, max_temp), y = c(min_n, max_n))
+
   })
 
 }
