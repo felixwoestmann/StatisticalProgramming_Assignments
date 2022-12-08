@@ -9,6 +9,7 @@ library(treemap)
 library(plotly)
 library(glue)
 library(stringr)
+library(zoo)
 
 mapbox_token <- 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hqMTEifQ.Szpy3fIYLgIWNZkdFU5PHg'
 Sys.setenv('MAPBOX_TOKEN' = mapbox_token)
@@ -46,11 +47,13 @@ journeys$is_weekend <- journeys$weekday %in% c("Sat", "Sun")
 weather_data <- read.table('data/weather_data_ljubljana.csv',
                            sep = ',',
                            header = T)
-colnames(weather_data) <- c('timestamp', 'avg_temperature_celsisus')
+colnames(weather_data) <- c('timestamp', 'avg_temperature_celsisus', 'precipitation_mm')
 
 weather_data$timestamp <- as.POSIXct(weather_data$timestamp,
                                      format = "%Y-%m-%d %H:%M")
 
+# Interpolate NA values in precipitation
+weather_data$precipitation_mm <- na.approx(weather_data$precipitation_mm, na.rm = FALSE)
 
 # ADD WEATHER DATA TO JOURNEYS ------------------------------------------------
 # We are creating journeys$timestampe as a dummy variable to easier merge two
@@ -61,33 +64,159 @@ weather_data$timestamp <- as.POSIXct(weather_data$timestamp,
 
 journeys$timestamp <- journeys$timestamp_start
 journeys[, 'avg_temperature_celsisus'] <- NA
+journeys[, 'precipitation_mm'] <- NA
 setDT(journeys)[, avg_temperature_celsisus := setDT(weather_data)[journeys,
                                                                   avg_temperature_celsisus,
                                                                   on = "timestamp",
                                                                   roll = "nearest"]]
+
+setDT(journeys)[, precipitation_mm := setDT(weather_data)[journeys,
+                                                          precipitation_mm,
+                                                          on = "timestamp",
+                                                          roll = "nearest"]]
+
 # Delete the dummy timestamp column yeeeeeee
 journeys <- journeys[, -15]
 
+journeysGroupedByTime <- function(breaks) {
+  journeys_by_temperature <- journeys
+  journeys_by_temperature$chunks <- cut(journeys_by_temperature$timestamp_start, breaks = breaks)
+  journeys_by_temperature$chunks <- as.POSIXct(journeys_by_temperature$chunks,
+                                               format = "%Y-%m-%d %H:%M:%S")
+  journeys_grouped <- journeys_by_temperature %>%
+    group_by(chunks) %>%
+    summarise(mean_temperature = mean(avg_temperature_celsisus),
+              mean_precipitation = mean(precipitation_mm),
+              n = n())
+
+  return(journeys_grouped)
+}
 
 ui <- fluidPage(
   titlePanel("BicikeLJ"),
   mainPanel(
     tabsetPanel(
       tabPanel('1. Popular Stations',
-               sliderInput('numberOfStations'),
+               sliderInput('numberOfStations', label = "", min = 1, max = 10, value = 5),
                plotOutput('popStationsHistogram'),
+      ),
+      tabPanel('2. Weather and Journeys',
+               mainPanel(sidebarLayout(sidebarPanel(
+                 h3("Rain level"),
+                 checkboxInput('showRain', label = 'Show Rain', value = TRUE),
+                 checkboxInput('showNoRain', label = 'Show No Rain', value = TRUE)),
+                                       mainPanel(
+                                         plotOutput('weatherAndJourneys')),),),
+               mainPanel(sidebarLayout(sidebarPanel(
+                 h3("Daytype"),
+                 checkboxInput('showWeekday', label = 'Show Weekday', value = TRUE,),
+                 checkboxInput('showWeekend', label = 'Show Weekend', value = TRUE,)),
+                                       mainPanel(
+                                         plotOutput('weatherAndJourneysAndDayType'),))),
+               mainPanel(sidebarLayout(sidebarPanel(
+                 h3("Daytime"),
+                 checkboxInput('showMorning', label = 'Show Morning', value = TRUE,),
+                 checkboxInput('showAfternoon', label = 'Show Afternoon', value = TRUE,),
+                 checkboxInput('showEvening', label = 'Show Evening', value = TRUE,),
+                 checkboxInput('showNight', label = 'Show Night', value = TRUE,)),
+                                       mainPanel(
+                                         plotOutput('weatherAndDayTime'),)))
       )
     ),
     width = 12
   )
+)
 
 
-  server <- function(input, output) {
-    output$popStationsHistogram <- renderPlot({
-      numberOfStations<-input$numberOfStations
-    })
+server <- function(input, output) {
+  output$popStationsHistogram <- renderPlot({
+    numberOfStations <- input$numberOfStations
+  })
 
-  }
+  output$weatherAndJourneys <- renderPlot({
+    showRain <- TRUE
+    showNoRain <- TRUE
+    showRain <- input$showRain
+    showNoRain <- input$showNoRain
+
+    journeys_grouped <- journeysGroupedByTime('20 min')
+
+    journeys_grouped$rainLevel <- ifelse(journeys_grouped$mean_precipitation > 0, "Rain", "No Rain")
+    journeys_grouped$rainLevel <- factor(journeys_grouped$rainLevel, levels = c("Rain", "No Rain"))
+    # Filter based on Checkbox
+    journeys_grouped <- journeys_grouped %>%
+      filter(rainLevel == "Rain" & showRain == TRUE |
+               rainLevel == "No Rain" & showNoRain == TRUE)
+    ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = rainLevel)) +
+      geom_point(size = 2, shape = 23)
+  })
+  output$weatherAndJourneysAndDayType <- renderPlot({
+    showWeekday <- TRUE
+    showWeekend <- TRUE
+    showWeekday <- input$showWeekday
+    showWeekend <- input$showWeekend
+
+    journeys_grouped <- journeysGroupedByTime('20 min')
+
+    # Calc limits before filtering so its not affected by selected vars
+    max_temp <- max(journeys_grouped$mean_temperature)
+    min_temp <- min(journeys_grouped$mean_temperature)
+    max_n <- max(journeys_grouped$n)
+    min_n <- min(journeys_grouped$n)
+
+    journeys_grouped$daytype <- ifelse(wday(journeys_grouped$chunks, label = TRUE) %in% c("Sat", "Sun"), "Weekend",
+                                       "Weekday")
+
+    journeys_grouped$daytype <- factor(journeys_grouped$daytype, levels = c("Weekday", "Weekend"))
+    # Filter based on Checkbox
+    journeys_grouped <- journeys_grouped %>%
+      filter(daytype == "Weekday" & showWeekday == TRUE |
+               daytype == "Weekend" & showWeekend == TRUE)
 
 
-  shinyApp(ui, server)
+    ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = daytype)) +
+      geom_point(size = 2, shape = 23) +
+      lims(x = c(min_temp, max_temp), y = c(min_n, max_n))
+  })
+
+  output$weatherAndDayTime <- renderPlot({
+    showMorning <- TRUE
+    showAfternoon <- TRUE
+    showEvening <- TRUE
+    showNight <- TRUE
+    showMorning <- input$showMorning
+    showAfternoon <- input$showAfternoon
+    showEvening <- input$showEvening
+    showNight <- input$showNight
+
+    journeys_grouped <- journeysGroupedByTime('20 min')
+
+    # Calc limits before filtering so its not affected by selected vars
+    max_temp <- max(journeys_grouped$mean_temperature)
+    min_temp <- min(journeys_grouped$mean_temperature)
+    max_n <- max(journeys_grouped$n)
+    min_n <- min(journeys_grouped$n)
+
+    journeys_grouped$daytime <- ifelse(hour(journeys_grouped$chunks) %in% 6:11, "Morning",
+                                       ifelse(hour(journeys_grouped$chunks) %in% 12:17, "Afternoon",
+                                              ifelse(hour(journeys_grouped$chunks) %in% 18:23, "Evening",
+                                                     ifelse(hour(journeys_grouped$chunks) %in% 0:5, "Night", NA))))
+
+    journeys_grouped$daytime <- factor(journeys_grouped$daytime, levels = c("Morning", "Afternoon", "Evening", "Night"))
+    # Filter based on Checkbox
+    journeys_grouped <- journeys_grouped %>%
+      filter(daytime == "Morning" & showMorning == TRUE |
+               daytime == "Afternoon" & showAfternoon == TRUE |
+               daytime == "Evening" & showEvening == TRUE |
+               daytime == "Night" & showNight == TRUE)
+
+
+    ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = daytime)) +
+      geom_point(size = 2, shape = 23) +
+      lims(x = c(min_temp, max_temp), y = c(min_n, max_n))
+  })
+
+}
+
+
+shinyApp(ui, server)
