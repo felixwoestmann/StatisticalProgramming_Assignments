@@ -92,6 +92,40 @@ journeysGroupedByTime <- function(breaks) {
   return(journeys_grouped)
 }
 
+## RENEE is doing stuff here ######################
+
+# goal: barplot with 24 bins for every hour showing average distance that was biked (in data time period)
+# - set to day of the week
+# - set to good or bad weather (blue is hour is bad, orange if hour is good) / OR MAYBE color shows good or bad weather but 4 colors for 4 different weather types/combinations
+
+# to do
+# 1. make variable for hours
+# 2. make variable goodweather, TRUE for good weather hour (= 0 percep and 5> celsisus), FALSE if not
+  # variable for rain TRUE or FALSE
+  # variable for 5> celsisus TRUE or FALSE
+  # combine in to goodweather
+# 3. make a barplot that shows average distance per hour
+
+# check felix's exploratory shiny to tackle this barplot
+
+disdata <- subset(journeys, select = c("timestamp_start", "distance_meters", "weekday", "avg_temperature_celsisus", "precipitation_mm"))
+
+disdata$hour <- as.factor(substr(disdata$timestamp,
+                       start = 12, stop = 13))
+
+disdata$rain <- disdata$precipitation_mm > 0
+disdata$cold <- disdata$avg_temperature_celsisus < 5
+disdata$goodweather <- disdata$rain == FALSE & disdata$cold == FALSE
+
+ggplot()+
+geom_bar(data = disdata %>% 
+            group_by(hour) %>% 
+            summarise(meandistance = mean(distance_meters)), 
+            aes(y = meandistance, x = hour),
+            stat= "identity")
+
+## END of renees stuff for now ############################
+
 # SHINY APP -----------------------------------------------------------------
 
 # USER INTERFACE ------------
@@ -149,8 +183,7 @@ ui <- fluidPage(
                  )),
                hr(),
                plotOutput('combinedDayTimeAndDaytype'),
-      )
-    ),
+      ),
       
       tabPanel('3. Journey Distance',
               sliderInput('dayoftheweek', label = "", min = 1, max = 7, value = 1),
@@ -160,7 +193,7 @@ ui <- fluidPage(
                
     ),
       width = 12
-  )
+  ))
 
 
 # SERVER ------------
@@ -188,6 +221,7 @@ server <- function(input, output) {
     ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = rainLevel)) +
       geom_point(size = 2, shape = 23)
   })
+  
   output$weatherAndJourneysAndDayType <- renderPlot({
     showWeekday <- TRUE
     showWeekend <- TRUE
