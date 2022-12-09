@@ -75,7 +75,7 @@ setDT(journeys)[, precipitation_mm := setDT(weather_data)[journeys,
                                                           on = "timestamp",
                                                           roll = "nearest"]]
 
-# Delete the dummy timestamp column yeeeeeee
+# Delete the dummy timestamp column
 journeys <- journeys[, -15]
 
 journeysGroupedByTime <- function(breaks) {
@@ -92,6 +92,9 @@ journeysGroupedByTime <- function(breaks) {
   return(journeys_grouped)
 }
 
+# SHINY APP -----------------------------------------------------------------
+
+# USER INTERFACE ------------
 
 ui <- fluidPage(
   titlePanel("BicikeLJ"),
@@ -126,14 +129,22 @@ ui <- fluidPage(
                  h3("Combined view of selected vars from above"),),
                                        mainPanel(
                                          plotOutput('combinedDayTimeAndDaytype'),)))
-      )
+      ),
+      
+      tabPanel('3. Journey Distance',
+              sliderInput('dayoftheweek', label = "", min = 1, max = 7, value = 1),
+              checkboxInput('showGoodweather', label = 'Show Good Weather', value = TRUE),
+              checkboxInput('showBadweather', label = 'Show Bad Weather', value = TRUE),
+              plotOutput('DistanceHistogram'))
     ),
-    width = 12
+      width = 12
   )
 )
 
+# SERVER ------------
 
 server <- function(input, output) {
+  
   output$popStationsHistogram <- renderPlot({
     numberOfStations <- input$numberOfStations
   })
@@ -282,8 +293,13 @@ server <- function(input, output) {
       lims(x = c(min_temp, max_temp), y = c(min_n, max_n))
 
   })
-
+  
+  output$DistanceHistogram <- renderPlot({
+    ggplot()
+  })
+  
 }
 
+# CALL
 
 shinyApp(ui, server)
