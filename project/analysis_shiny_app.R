@@ -105,6 +105,7 @@ ui <- fluidPage(
                plotOutput('popStationsHistogram'),
       ),
       tabPanel('2. Weather and Journeys',
+
                mainPanel(sidebarLayout(sidebarPanel(
                  h3("Rain level"),
                  checkboxInput('showRain', label = 'Show Rain', value = TRUE),
@@ -128,18 +129,39 @@ ui <- fluidPage(
                mainPanel(sidebarLayout(sidebarPanel(
                  h3("Combined view of selected vars from above"),),
                                        mainPanel(
-                                         plotOutput('combinedDayTimeAndDaytype'),)))
-      ),
+                                         plotOutput('combinedDayTimeAndDaytype'),))),
+      
+               fluidRow(
+                 column(4, h3("Rain level"),
+                        checkboxInput('showRain', label = 'Show Rain', value = TRUE),
+                        checkboxInput('showNoRain', label = 'Show No Rain', value = TRUE),
+                        plotOutput('weatherAndJourneys')),
+                 column(4, h3("Daytype"),
+                        checkboxInput('showWeekday', label = 'Show Weekday', value = TRUE,),
+                        checkboxInput('showWeekend', label = 'Show Weekend', value = TRUE,),
+                        plotOutput('weatherAndJourneysAndDayType')),
+                 column(4, h3("Daytime"),
+                        checkboxInput('showMorning', label = 'Show Morning', value = TRUE,),
+                        checkboxInput('showAfternoon', label = 'Show Afternoon', value = TRUE,),
+                        checkboxInput('showEvening', label = 'Show Evening', value = TRUE,),
+                        checkboxInput('showNight', label = 'Show Night', value = TRUE,),
+                        plotOutput('weatherAndDayTime'),
+                 )),
+               hr(),
+               plotOutput('combinedDayTimeAndDaytype'),
+      )
+    ),
       
       tabPanel('3. Journey Distance',
               sliderInput('dayoftheweek', label = "", min = 1, max = 7, value = 1),
               checkboxInput('showGoodweather', label = 'Show Good Weather', value = TRUE),
               checkboxInput('showBadweather', label = 'Show Bad Weather', value = TRUE),
               plotOutput('DistanceHistogram'))
+               
     ),
       width = 12
   )
-)
+
 
 # SERVER ------------
 
