@@ -5,7 +5,7 @@ output$weatherRain <- renderPlot({
   showRain <- input$showRain
   showNoRain <- input$showNoRain
 
-  journeys_grouped <- journeysGroupedByTime('20 min')
+  journeys_grouped <- journeysGroupedByTime(journeys, '20 min')
 
   journeys_grouped$rainLevel <- ifelse(journeys_grouped$mean_precipitation > 0, "Rain", "No Rain")
   journeys_grouped$rainLevel <- factor(journeys_grouped$rainLevel, levels = c("Rain", "No Rain"))
@@ -24,7 +24,7 @@ output$weatherWeekdayWeekend <- renderPlot({
   showWeekday <- input$showWeekday
   showWeekend <- input$showWeekend
 
-  journeys_grouped <- journeysGroupedByTime('20 min')
+  journeys_grouped <- journeysGroupedByTime(journeys, '20 min')
 
   # Calc limits before filtering so its not affected by selected vars
   max_temp <- max(journeys_grouped$mean_temperature)
@@ -58,7 +58,7 @@ output$weatherTimeOfDay <- renderPlot({
   showEvening <- input$showEvening
   showNight <- input$showNight
 
-  journeys_grouped <- journeysGroupedByTime('20 min')
+  journeys_grouped <- journeysGroupedByTime(journeys, '20 min')
 
   # Calc limits before filtering so its not affected by selected vars
   max_temp <- max(journeys_grouped$mean_temperature)
@@ -108,7 +108,7 @@ output$weatherCombined <- renderPlot({
   showRain <- input$showRain
   showNoRain <- input$showNoRain
 
-  journeys_grouped <- journeysGroupedByTime('20 min')
+  journeys_grouped <- journeysGroupedByTime(journeys, '20 min')
   # Calc limits before filtering so its not affected by selected vars
   max_temp <- max(journeys_grouped$mean_temperature)
   min_temp <- min(journeys_grouped$mean_temperature)
