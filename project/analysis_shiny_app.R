@@ -23,13 +23,13 @@ colnames(stations) <- c('number', 'name', 'lat', 'lon')
 # LOAD JOURNEY DATA -----------------------------------------------------------
 # When plotting our data we can see that there is a massive spike of journeys around 15.11 9:00 am
 # We saw that while looking at the quality of our data. Therefore we will remove data from the start till 15.11 12am
-journeyConn <- dbConnect(SQLite(), "data/20221201_journey.db")
+journeyConn <- dbConnect(SQLite(), "data/20221207_journey.db")
 journeys <- dbGetQuery(journeyConn,
                        "SELECT *
                         FROM Journeys
                         WHERE timestampStart > '2022-11-15 15:00:00'
                         AND timestampEnd > '2022-11-15 15:00:00'
-                        AND timestampStart < '2022-11-30 00:00:00'")
+                        AND timestampStart < '2022-12-06 00:00:00'")
 
 colnames(journeys) <- c('id', 'timestamp_start', 'timestamp_end',
                         'bike_number', 'station_start', 'station_end',

@@ -14,7 +14,7 @@ mapbox_token <- 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hq
 Sys.setenv('MAPBOX_TOKEN' = mapbox_token)
 
 # LOAD OBSERVATION DATA TO DO QUALITY CONTROL ------------------------------
-observationConn <- dbConnect(SQLite(), "data/20221201_bike_observations.db")
+observationConn <- dbConnect(SQLite(), "data/20221207_bike_observations.db")
 observations <- dbGetQuery(observationConn,
                            "SELECT id,
                            Timestamp as timestamp,
@@ -22,7 +22,7 @@ observations <- dbGetQuery(observationConn,
                            FROM BikeObservations
                            WHERE id % 3 = 0
                            AND Timestamp > '2022-11-15 15:00:00'
-                           AND Timestamp < '2022-11-30 00:00:00'")
+                           AND Timestamp < '2022-12-06 00:00:00'")
 # loading times
 unique_bikes <- dbGetQuery(observationConn, "SELECT COUNT(DISTINCT bikeNumber) FROM BikeObservations")
 unique_bikes <- unique_bikes[[1]]
@@ -39,13 +39,13 @@ colnames(stations) <- c('number', 'name', 'lat', 'lon')
 # LOAD JOURNEY DATA -----------------------------------------------------------
 # When plotting our data we can see that there is a massive spike of journeys around 15.11 9:00 am
 # We saw that while looking at the quality of our data. Therefore we will remove data from the start till 15.11 12am
-journeyConn <- dbConnect(SQLite(), "data/20221201_journey.db")
+journeyConn <- dbConnect(SQLite(), "data/20221207_journey.db")
 journeys <- dbGetQuery(journeyConn,
                        "SELECT *
                         FROM Journeys
                         WHERE timestampStart > '2022-11-15 15:00:00'
                         AND timestampEnd > '2022-11-15 15:00:00'
-                        AND timestampStart < '2022-11-30 00:00:00'")
+                        AND timestampStart < '2022-12-06 00:00:00'")
 
 colnames(journeys) <- c('id', 'timestamp_start', 'timestamp_end',
                         'bike_number', 'station_start', 'station_end',
