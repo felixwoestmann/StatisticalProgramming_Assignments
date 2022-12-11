@@ -105,7 +105,10 @@ journeysGroupedByTime <- function(breaks) {
   # variable for 5> celsisus TRUE or FALSE
   # combine in to goodweather
 # 3. make a barplot that shows average distance per hour
-
+# 4. put the barplot in shiny app
+# 5. make it change according to checkbox (good weather/bad weather/double check)
+# 6. make it change according to the slider (1=monday)
+    ## sliderInput('dayoftheweek', label = "", min = 1, max = 7, value = 1)
 # check felix's exploratory shiny to tackle this barplot
 
 disdata <- subset(journeys, select = c("timestamp_start", "distance_meters", "weekday", "avg_temperature_celsisus", "precipitation_mm"))
@@ -186,12 +189,14 @@ ui <- fluidPage(
       ),
       
       tabPanel('3. Journey Distance',
-              sliderInput('dayoftheweek', label = "", min = 1, max = 7, value = 1),
-              checkboxInput('showGoodweather', label = 'Show Good Weather', value = TRUE),
-              checkboxInput('showBadweather', label = 'Show Bad Weather', value = TRUE),
-              plotOutput('DistanceHistogram'))
-               
-    ),
+              mainPanel(sidebarLayout(sidebarPanel(
+              h3("Weather type"),  
+              checkboxInput('showGoodweather', label = 'Good Weather', value = TRUE),
+              checkboxInput('showBadweather', label = 'Bad Weather', value = TRUE)),
+                      mainPanel(
+                        plotOutput('DistanceBarplot'))))
+              
+    )),
       width = 12
   ))
 
@@ -350,8 +355,13 @@ server <- function(input, output) {
 
   })
   
-  output$DistanceHistogram <- renderPlot({
-    ggplot()
+  output$DistanceBarplot <- renderPlot({
+    ggplot()+
+      geom_bar(data = disdata %>% 
+                 group_by(hour) %>% 
+                 summarise(meandistance = mean(distance_meters)), 
+               aes(y = meandistance, x = hour),
+               stat= "identity")
   })
   
 }
