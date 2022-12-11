@@ -3,7 +3,7 @@ tab2UITop <- function() {
       column(4,
              h3("Rain or No Rain"),
              plotOutput('weatherRain'),
-             sidebarPanel(
+             wellPanel(
                h4("Select rain level"),
                checkboxInput('showRain', label = 'Show Rain', value = TRUE),
                checkboxInput('showNoRain', label = 'Show No Rain', value = TRUE),
@@ -11,7 +11,7 @@ tab2UITop <- function() {
       column(4,
              h3("Weekday or Weekend"),
              plotOutput('weatherWeekdayWeekend'),
-             sidebarPanel(
+             wellPanel(
                h4("Select type of day"),
                checkboxInput('showWeekday', label = 'Show Weekday', value = TRUE,),
                checkboxInput('showWeekend', label = 'Show Weekend', value = TRUE,),
@@ -19,7 +19,7 @@ tab2UITop <- function() {
       column(4,
              h3("Time of day"),
              plotOutput('weatherTimeOfDay'),
-             sidebarPanel(
+             wellPanel(
                h4("Select time of day"),
                fluidRow(
                  column(6,

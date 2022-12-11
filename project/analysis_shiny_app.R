@@ -164,6 +164,13 @@ ui <- fluidPage(
                plotOutput('popStationsHistogram'),
       ),
       tabPanel('2. Weather and Journeys',
+               wellPanel(
+                 h2('Instructions'),
+                 p('This tab allows the user to interactively analyze data about weather and the amount of
+               journeys conducted.'),
+                 shiny::tags$li('- In the first step the user can filter the data based on some paramters. '),
+                  shiny::tags$li('- In the second step the user can see intersection of the sets below.')
+               ),
                tab2UITop(),
                hr(),
                h1("▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼"),
