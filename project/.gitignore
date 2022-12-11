@@ -74,6 +74,8 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+*_bike_observations.db
+
 # Editor-based Rest Client
 .idea/httpRequests
 
