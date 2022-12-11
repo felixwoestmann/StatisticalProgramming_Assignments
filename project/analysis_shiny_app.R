@@ -11,6 +11,8 @@ library(glue)
 library(stringr)
 library(zoo)
 
+options(shiny.autoreload = TRUE)
+
 mapbox_token <- 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hqMTEifQ.Szpy3fIYLgIWNZkdFU5PHg'
 Sys.setenv('MAPBOX_TOKEN' = mapbox_token)
 
@@ -165,23 +167,34 @@ ui <- fluidPage(
                fluidRow(
                  column(4, h3("Rain or No Rain"),
                         plotOutput('weatherRain'),
-                        sidebarPanel(checkboxInput('showRain', label = 'Show Rain', value = TRUE),
-                                     checkboxInput('showNoRain', label = 'Show No Rain', value = TRUE),
-                                     width = 12)),
+                        sidebarPanel(
+                          h4("Select rain level"),
+                          checkboxInput('showRain', label = 'Show Rain', value = TRUE),
+                          checkboxInput('showNoRain', label = 'Show No Rain', value = TRUE),
+                          width = 12)),
                  column(4, h3("Weekday or Weekend"),
                         plotOutput('weatherWeekdayWeekend'),
-                        sidebarPanel(checkboxInput('showWeekday', label = 'Show Weekday', value = TRUE,),
-                                     checkboxInput('showWeekend', label = 'Show Weekend', value = TRUE,),
-                                     width = 12)),
+                        sidebarPanel(
+                          h4("Select type of day"),
+                          checkboxInput('showWeekday', label = 'Show Weekday', value = TRUE,),
+                          checkboxInput('showWeekend', label = 'Show Weekend', value = TRUE,),
+                          width = 12)),
                  column(4, h3("Time of day"),
                         plotOutput('weatherTimeOfDay'),
-                        sidebarPanel(checkboxInput('showMorning', label = 'Show Morning', value = TRUE,),
-                                     checkboxInput('showAfternoon', label = 'Show Afternoon', value = TRUE,),
-                                     checkboxInput('showEvening', label = 'Show Evening', value = TRUE,),
-                                     checkboxInput('showNight', label = 'Show Night', value = TRUE,),
-                                     width = 12))
+                        sidebarPanel(
+                          h4("Select time of day"),
+                          fluidRow(
+                            column(6,
+                                   checkboxInput('showMorning', label = 'Show Morning', value = TRUE,),
+                                   checkboxInput('showAfternoon', label = 'Show Afternoon', value = TRUE,)),
+                            column(6,
+                                   checkboxInput('showEvening', label = 'Show Evening', value = TRUE,),
+                                   checkboxInput('showNight', label = 'Show Night', value = TRUE,))
+                          ),
+                          width = 12))
                ),
                hr(),
+               h1("▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼"),
                plotOutput('weatherCombined'),
       ),
 
