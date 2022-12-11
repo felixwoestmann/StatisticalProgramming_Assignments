@@ -120,12 +120,30 @@ disdata$rain <- disdata$precipitation_mm > 0
 disdata$cold <- disdata$avg_temperature_celsisus < 5
 disdata$goodweather <- disdata$rain == FALSE & disdata$cold == FALSE
 
-ggplot()+
-geom_bar(data = disdata %>% 
-            group_by(hour) %>% 
-            summarise(meandistance = mean(distance_meters)), 
-            aes(y = meandistance, x = hour),
-            stat= "identity")
+  # output$DistanceBarplot <- renderPlot({
+  #   showGoodweather <- input$showGoodweather
+  #   showBadweather <- input$showBadweather
+  #   
+  #   # Grouped distance
+  #   
+  #   average_distance_hour <- disdata %>% 
+  #     group_by(hour) %>% 
+  #     summarise(meandistance = mean(distance_meters))
+  #   
+  #   average_distance_hour$weather <- ifelse(disdata$goodweather == TRUE, "Good", "Bad")
+  #   average_distance_hour$weather <- factor(average_distance_hour$weather, levels = c("Good", "Bad"))
+  #   
+  #   
+  #   # Filter based on Checkbox
+  #   average_distance_hour <- average_distance_hour %>%
+  #     filter(average_distance_hour == "Bad" & showBadweather == TRUE |
+  #              average_distance_hour == "Good" & showGoodweather == TRUE)
+  #   
+  #   ggplot()+
+  #     geom_bar(average_distance_hour, aes(y = meandistance, x = hour),
+  #              stat= "identity")
+  # })
+
 
 ## END of renees stuff for now ############################
 
@@ -189,14 +207,14 @@ ui <- fluidPage(
       ),
       
       tabPanel('3. Journey Distance',
-              mainPanel(sidebarLayout(sidebarPanel(
-              h3("Weather type"),  
-              checkboxInput('showGoodweather', label = 'Good Weather', value = TRUE),
-              checkboxInput('showBadweather', label = 'Bad Weather', value = TRUE)),
-                      mainPanel(
-                        plotOutput('DistanceBarplot'))))
+               mainPanel(sidebarLayout(sidebarPanel(
+                 h3("Weather type"),  
+                 checkboxInput('showGoodweather', label = 'Good Weather', value = TRUE),
+                 checkboxInput('showBadweather', label = 'Bad Weather', value = TRUE)),
+                 mainPanel(
+                   plotOutput('DistanceBarplot'))))),
               
-    )),
+    ),
       width = 12
   ))
 
@@ -356,10 +374,19 @@ server <- function(input, output) {
   })
   
   output$DistanceBarplot <- renderPlot({
+    showGoodweather <- input$showGoodweather
+    showBadweather <- input$showBadweather
+    
+    disdata$goodweather <- as.factor(disdata$goodweather)
+    
+    disdata <- disdata %>%
+      filter(disdata$goodweather == "FALSE" & showBadweather == TRUE |
+               disdata$goodweather == "TRUE" & showGoodweather == TRUE)
+    
     ggplot()+
       geom_bar(data = disdata %>% 
                  group_by(hour) %>% 
-                 summarise(meandistance = mean(distance_meters)), 
+                 summarise(meandistance = mean(distance_meters)),
                aes(y = meandistance, x = hour),
                stat= "identity")
   })
@@ -369,3 +396,4 @@ server <- function(input, output) {
 # CALL
 
 shinyApp(ui, server)
+
