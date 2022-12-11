@@ -96,53 +96,55 @@ journeysGroupedByTime <- function(breaks) {
 
 # goal: barplot with 24 bins for every hour showing average distance that was biked (in data time period)
 # - set to day of the week
-# - set to good or bad weather (blue is hour is bad, orange if hour is good) / OR MAYBE color shows good or bad weather but 4 colors for 4 different weather types/combinations
+# - set to good or bad weather (blue is hour is bad, orange if hour is good) / OR MAYBE color shows good or bad
+# weather but 4 colors for 4 different weather types/combinations
 
 # to do
 # 1. make variable for hours
 # 2. make variable goodweather, TRUE for good weather hour (= 0 percep and 5> celsisus), FALSE if not
-  # variable for rain TRUE or FALSE
-  # variable for 5> celsisus TRUE or FALSE
-  # combine in to goodweather
+# variable for rain TRUE or FALSE
+# variable for 5> celsisus TRUE or FALSE
+# combine in to goodweather
 # 3. make a barplot that shows average distance per hour
 # 4. put the barplot in shiny app
 # 5. make it change according to checkbox (good weather/bad weather/double check)
 # 6. make it change according to the slider (1=monday)
-    ## sliderInput('dayoftheweek', label = "", min = 1, max = 7, value = 1)
+## sliderInput('dayoftheweek', label = "", min = 1, max = 7, value = 1)
 # check felix's exploratory shiny to tackle this barplot
 
-disdata <- subset(journeys, select = c("timestamp_start", "distance_meters", "weekday", "avg_temperature_celsisus", "precipitation_mm"))
+disdata <- subset(journeys, select = c("timestamp_start", "distance_meters", "weekday", "avg_temperature_celsisus",
+                                       "precipitation_mm"))
 
 disdata$hour <- as.factor(substr(disdata$timestamp,
-                       start = 12, stop = 13))
+                                 start = 12, stop = 13))
 
 disdata$rain <- disdata$precipitation_mm > 0
 disdata$cold <- disdata$avg_temperature_celsisus < 5
 disdata$goodweather <- disdata$rain == FALSE & disdata$cold == FALSE
 
-  # output$DistanceBarplot <- renderPlot({
-  #   showGoodweather <- input$showGoodweather
-  #   showBadweather <- input$showBadweather
-  #   
-  #   # Grouped distance
-  #   
-  #   average_distance_hour <- disdata %>% 
-  #     group_by(hour) %>% 
-  #     summarise(meandistance = mean(distance_meters))
-  #   
-  #   average_distance_hour$weather <- ifelse(disdata$goodweather == TRUE, "Good", "Bad")
-  #   average_distance_hour$weather <- factor(average_distance_hour$weather, levels = c("Good", "Bad"))
-  #   
-  #   
-  #   # Filter based on Checkbox
-  #   average_distance_hour <- average_distance_hour %>%
-  #     filter(average_distance_hour == "Bad" & showBadweather == TRUE |
-  #              average_distance_hour == "Good" & showGoodweather == TRUE)
-  #   
-  #   ggplot()+
-  #     geom_bar(average_distance_hour, aes(y = meandistance, x = hour),
-  #              stat= "identity")
-  # })
+# output$DistanceBarplot <- renderPlot({
+#   showGoodweather <- input$showGoodweather
+#   showBadweather <- input$showBadweather
+#
+#   # Grouped distance
+#
+#   average_distance_hour <- disdata %>%
+#     group_by(hour) %>%
+#     summarise(meandistance = mean(distance_meters))
+#
+#   average_distance_hour$weather <- ifelse(disdata$goodweather == TRUE, "Good", "Bad")
+#   average_distance_hour$weather <- factor(average_distance_hour$weather, levels = c("Good", "Bad"))
+#
+#
+#   # Filter based on Checkbox
+#   average_distance_hour <- average_distance_hour %>%
+#     filter(average_distance_hour == "Bad" & showBadweather == TRUE |
+#              average_distance_hour == "Good" & showGoodweather == TRUE)
+#
+#   ggplot()+
+#     geom_bar(average_distance_hour, aes(y = meandistance, x = hour),
+#              stat= "identity")
+# })
 
 
 ## END of renees stuff for now ############################
@@ -160,74 +162,51 @@ ui <- fluidPage(
                plotOutput('popStationsHistogram'),
       ),
       tabPanel('2. Weather and Journeys',
-
-               mainPanel(sidebarLayout(sidebarPanel(
-                 h3("Rain level"),
-                 checkboxInput('showRain', label = 'Show Rain', value = TRUE),
-                 checkboxInput('showNoRain', label = 'Show No Rain', value = TRUE)),
-                                       mainPanel(
-                                         plotOutput('weatherAndJourneys')),),),
-               mainPanel(sidebarLayout(sidebarPanel(
-                 h3("Daytype"),
-                 checkboxInput('showWeekday', label = 'Show Weekday', value = TRUE,),
-                 checkboxInput('showWeekend', label = 'Show Weekend', value = TRUE,)),
-                                       mainPanel(
-                                         plotOutput('weatherAndJourneysAndDayType'),))),
-               mainPanel(sidebarLayout(sidebarPanel(
-                 h3("Daytime"),
-                 checkboxInput('showMorning', label = 'Show Morning', value = TRUE,),
-                 checkboxInput('showAfternoon', label = 'Show Afternoon', value = TRUE,),
-                 checkboxInput('showEvening', label = 'Show Evening', value = TRUE,),
-                 checkboxInput('showNight', label = 'Show Night', value = TRUE,)),
-                                       mainPanel(
-                                         plotOutput('weatherAndDayTime'),))),
-               mainPanel(sidebarLayout(sidebarPanel(
-                 h3("Combined view of selected vars from above"),),
-                                       mainPanel(
-                                         plotOutput('combinedDayTimeAndDaytype'),))),
-      
                fluidRow(
-                 column(4, h3("Rain level"),
-                        checkboxInput('showRain', label = 'Show Rain', value = TRUE),
-                        checkboxInput('showNoRain', label = 'Show No Rain', value = TRUE),
-                        plotOutput('weatherAndJourneys')),
-                 column(4, h3("Daytype"),
-                        checkboxInput('showWeekday', label = 'Show Weekday', value = TRUE,),
-                        checkboxInput('showWeekend', label = 'Show Weekend', value = TRUE,),
-                        plotOutput('weatherAndJourneysAndDayType')),
-                 column(4, h3("Daytime"),
-                        checkboxInput('showMorning', label = 'Show Morning', value = TRUE,),
-                        checkboxInput('showAfternoon', label = 'Show Afternoon', value = TRUE,),
-                        checkboxInput('showEvening', label = 'Show Evening', value = TRUE,),
-                        checkboxInput('showNight', label = 'Show Night', value = TRUE,),
-                        plotOutput('weatherAndDayTime'),
-                 )),
+                 column(4, h3("Rain or No Rain"),
+                        plotOutput('weatherRain'),
+                        sidebarPanel(checkboxInput('showRain', label = 'Show Rain', value = TRUE),
+                                     checkboxInput('showNoRain', label = 'Show No Rain', value = TRUE),
+                                     width = 12)),
+                 column(4, h3("Weekday or Weekend"),
+                        plotOutput('weatherWeekdayWeekend'),
+                        sidebarPanel(checkboxInput('showWeekday', label = 'Show Weekday', value = TRUE,),
+                                     checkboxInput('showWeekend', label = 'Show Weekend', value = TRUE,),
+                                     width = 12)),
+                 column(4, h3("Time of day"),
+                        plotOutput('weatherTimeOfDay'),
+                        sidebarPanel(checkboxInput('showMorning', label = 'Show Morning', value = TRUE,),
+                                     checkboxInput('showAfternoon', label = 'Show Afternoon', value = TRUE,),
+                                     checkboxInput('showEvening', label = 'Show Evening', value = TRUE,),
+                                     checkboxInput('showNight', label = 'Show Night', value = TRUE,),
+                                     width = 12))
+               ),
                hr(),
-               plotOutput('combinedDayTimeAndDaytype'),
+               plotOutput('weatherCombined'),
       ),
-      
+
       tabPanel('3. Journey Distance',
                mainPanel(sidebarLayout(sidebarPanel(
-                 h3("Weather type"),  
+                 h3("Weather type"),
                  checkboxInput('showGoodweather', label = 'Good Weather', value = TRUE),
                  checkboxInput('showBadweather', label = 'Bad Weather', value = TRUE)),
-                 mainPanel(
-                   plotOutput('DistanceBarplot'))))),
-              
+                                       mainPanel(
+                                         plotOutput('DistanceBarplot'))))),
+
     ),
-      width = 12
+    width = 12
   ))
 
 
 # SERVER ------------
 
 server <- function(input, output) {
-  
+
   output$popStationsHistogram <- renderPlot({
     numberOfStations <- input$numberOfStations
   })
 
-  output$weatherAndJourneys <- renderPlot({
+  output$weatherRain <- renderPlot({
     showRain <- TRUE
     showNoRain <- TRUE
     showRain <- input$showRain
@@ -242,10 +221,11 @@ server <- function(input, output) {
       filter(rainLevel == "Rain" & showRain == TRUE |
                rainLevel == "No Rain" & showNoRain == TRUE)
     ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = rainLevel)) +
-      geom_point(size = 2, shape = 23)
+      geom_point(size = 2, shape = 23) +
+      theme(legend.position = "bottom")
   })
-  
-  output$weatherAndJourneysAndDayType <- renderPlot({
+
+  output$weatherWeekdayWeekend <- renderPlot({
     showWeekday <- TRUE
     showWeekend <- TRUE
     showWeekday <- input$showWeekday
@@ -271,10 +251,11 @@ server <- function(input, output) {
 
     ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = daytype)) +
       geom_point(size = 2, shape = 23) +
-      lims(x = c(min_temp, max_temp), y = c(min_n, max_n))
+      lims(x = c(min_temp, max_temp), y = c(min_n, max_n)) +
+      theme(legend.position = "bottom")
   })
 
-  output$weatherAndDayTime <- renderPlot({
+  output$weatherTimeOfDay <- renderPlot({
     showMorning <- TRUE
     showAfternoon <- TRUE
     showEvening <- TRUE
@@ -297,7 +278,9 @@ server <- function(input, output) {
                                               ifelse(hour(journeys_grouped$chunks) %in% 18:23, "Evening",
                                                      ifelse(hour(journeys_grouped$chunks) %in% 0:5, "Night", NA))))
 
-    journeys_grouped$daytime <- factor(journeys_grouped$daytime, levels = c("Morning", "Afternoon", "Evening", "Night"))
+    journeys_grouped$daytime <- factor(journeys_grouped$daytime,
+                                       levels = c("Morning", "Afternoon", "Evening", "Night"))
+
     # Filter based on Checkbox
     journeys_grouped <- journeys_grouped %>%
       filter(daytime == "Morning" & showMorning == TRUE |
@@ -308,10 +291,11 @@ server <- function(input, output) {
 
     ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = daytime)) +
       geom_point(size = 2, shape = 23) +
-      lims(x = c(min_temp, max_temp), y = c(min_n, max_n))
+      lims(x = c(min_temp, max_temp), y = c(min_n, max_n)) +
+      theme(legend.position = "bottom")
   })
 
-  output$combinedDayTimeAndDaytype <- renderPlot({
+  output$weatherCombined <- renderPlot({
     showWeekday <- TRUE
     showWeekend <- TRUE
     showWeekday <- input$showWeekday
@@ -372,25 +356,25 @@ server <- function(input, output) {
       lims(x = c(min_temp, max_temp), y = c(min_n, max_n))
 
   })
-  
+
   output$DistanceBarplot <- renderPlot({
     showGoodweather <- input$showGoodweather
     showBadweather <- input$showBadweather
-    
+
     disdata$goodweather <- as.factor(disdata$goodweather)
-    
+
     disdata <- disdata %>%
       filter(disdata$goodweather == "FALSE" & showBadweather == TRUE |
                disdata$goodweather == "TRUE" & showGoodweather == TRUE)
-    
-    ggplot()+
-      geom_bar(data = disdata %>% 
-                 group_by(hour) %>% 
-                 summarise(meandistance = mean(distance_meters)),
+
+    ggplot() +
+      geom_bar(data = disdata %>%
+        group_by(hour) %>%
+        summarise(meandistance = mean(distance_meters)),
                aes(y = meandistance, x = hour),
-               stat= "identity")
+               stat = "identity")
   })
-  
+
 }
 
 # CALL
