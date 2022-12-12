@@ -13,6 +13,7 @@ library(zoo)
 library(wesanderson)
 
 source('load_data.R', local = TRUE)
+source('tabContents/tab1_ui_declaration.R', local = TRUE)
 source('tabContents/tab2_ui_declaration.R', local = TRUE)
 
 mapbox_token <- 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hqMTEifQ.Szpy3fIYLgIWNZkdFU5PHg'
@@ -48,10 +49,7 @@ ui <- fluidPage(
   titlePanel("BicikeLJ"),
   mainPanel(
     tabsetPanel(
-      tabPanel('1. Popular Stations',
-               sliderInput('numberOfStations', label = "", min = 1, max = 10, value = 5),
-               plotOutput('popStationsHistogram'),
-      ),
+      tab1(),
       tab2(),
       tabPanel('3. Journey Distance',
                mainPanel(sidebarLayout(
