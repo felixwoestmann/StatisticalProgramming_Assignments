@@ -99,14 +99,6 @@ journeysGroupedByTime <- function(breaks) {
 # - set to good or bad weather (blue is hour is bad, orange if hour is good) / OR MAYBE color shows good or bad weather but 4 colors for 4 different weather types/combinations
 
 # to do
-# 1. make variable for hours
-# 2. make variable goodweather, TRUE for good weather hour (= 0 percep and 5> celsisus), FALSE if not
-# variable for rain TRUE or FALSE
-# variable for 5> celsisus TRUE or FALSE
-# combine in to goodweather
-# 3. make a barplot that shows average distance per hour
-# 4. put the barplot in shiny app
-# 5. make it change according to checkbox (good weather/bad weather/double check)
 # 6. make it change according to the slider (1=monday)
 ## sliderInput('dayoftheweek', label = "", min = 1, max = 7, value = 1)
 # check felix's exploratory shiny to tackle this barplot
@@ -144,10 +136,18 @@ ui <- fluidPage(
                             checkboxInput('showGoodweather', label = 'Good Weather', value = TRUE),
                             checkboxInput('showBadweather', label = 'Bad Weather', value = TRUE)),
                             mainPanel(
-                              plotOutput('DistanceBarplot'))))),
-    )
-    
-  ))
+                              plotOutput('DistanceBarplot')),
+                            
+                            sidebarPanel(
+                            h3("Day of the week"),
+                            sliderInput('dayoftheweek', 
+                            label = "Day of the week", 
+                            min = 1, max = 7, value = 1,
+                            step = 1)),
+                            mainPanel(
+                              plotOutput('DistanceBarplot2'))
+                            
+))))))
 
 
 # SERVER -----------------
@@ -171,7 +171,16 @@ server <- function(input, output) {
                aes(y = meandistance, x = hour),
                stat= "identity")
   })
-  
+   
+     output$DistanceBarplot2 <- renderPlot({
+      
+      ggplot()+
+        geom_bar(data = disdata %>% 
+                   group_by(hour) %>% 
+                   summarise(meandistance = mean(distance_meters)),
+                 aes(y = meandistance, x = hour),
+                 stat= "identity")
+})
 }
 
 # CALL

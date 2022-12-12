@@ -17,12 +17,10 @@ source('tab2_ui_declaration.R', local = TRUE)
 mapbox_token <- 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hqMTEifQ.Szpy3fIYLgIWNZkdFU5PHg'
 Sys.setenv('MAPBOX_TOKEN' = mapbox_token)
 
-
 stations <- loadStaticStationData()
 weather_data <- loadWeatherData()
 journeys <- loadJourneyData()
 journeys <- combineWeatherAndJourneyData(journeys, weather_data)
-
 
 ## RENEE is doing stuff here ######################
 
@@ -31,17 +29,7 @@ journeys <- combineWeatherAndJourneyData(journeys, weather_data)
 # - set to good or bad weather (blue is hour is bad, orange if hour is good) / OR MAYBE color shows good or bad
 # weather but 4 colors for 4 different weather types/combinations
 
-# to do
-# 1. make variable for hours
-# 2. make variable goodweather, TRUE for good weather hour (= 0 percep and 5> celsisus), FALSE if not
-# variable for rain TRUE or FALSE
-# variable for 5> celsisus TRUE or FALSE
-# combine in to goodweather
-# 3. make a barplot that shows average distance per hour
-# 4. put the barplot in shiny app
-# 5. make it change according to checkbox (good weather/bad weather/double check)
 # 6. make it change according to the slider (1=monday)
-## sliderInput('dayoftheweek', label = "", min = 1, max = 7, value = 1)
 # check felix's exploratory shiny to tackle this barplot
 
 disdata <- subset(journeys, select = c("timestamp_start", "distance_meters", "weekday", "avg_temperature_celsisus",
@@ -49,37 +37,14 @@ disdata <- subset(journeys, select = c("timestamp_start", "distance_meters", "we
 
 disdata$hour <- as.factor(substr(disdata$timestamp,
                                  start = 12, stop = 13))
+disdata$weekday <- as.factor(disdata$weekday)
 
 disdata$rain <- disdata$precipitation_mm > 0
 disdata$cold <- disdata$avg_temperature_celsisus < 5
 disdata$goodweather <- disdata$rain == FALSE & disdata$cold == FALSE
 
-# output$DistanceBarplot <- renderPlot({
-#   showGoodweather <- input$showGoodweather
-#   showBadweather <- input$showBadweather
-#
-#   # Grouped distance
-#
-#   average_distance_hour <- disdata %>%
-#     group_by(hour) %>%
-#     summarise(meandistance = mean(distance_meters))
-#
-#   average_distance_hour$weather <- ifelse(disdata$goodweather == TRUE, "Good", "Bad")
-#   average_distance_hour$weather <- factor(average_distance_hour$weather, levels = c("Good", "Bad"))
-#
-#
-#   # Filter based on Checkbox
-#   average_distance_hour <- average_distance_hour %>%
-#     filter(average_distance_hour == "Bad" & showBadweather == TRUE |
-#              average_distance_hour == "Good" & showGoodweather == TRUE)
-#
-#   ggplot()+
-#     geom_bar(average_distance_hour, aes(y = meandistance, x = hour),
-#              stat= "identity")
-# })
-
-
 ## END of renees stuff for now ############################
+
 
 # SHINY APP -----------------------------------------------------------------
 
@@ -108,16 +73,28 @@ ui <- fluidPage(
                tab2UIBottom(),
       ),
       tabPanel('3. Journey Distance',
-               mainPanel(sidebarLayout(sidebarPanel(
+               mainPanel(sidebarLayout(
+                 
+                 sidebarPanel(
                  h3("Weather type"),
                  checkboxInput('showGoodweather', label = 'Good Weather', value = TRUE),
                  checkboxInput('showBadweather', label = 'Bad Weather', value = TRUE)),
                                        mainPanel(
-                                         plotOutput('DistanceBarplot'))))),
+                                         plotOutput('DistanceBarplot')),
+             
+                sidebarPanel(
+                h3("Day of the week"),
+                sliderInput('dayoftheweek', 
+                            label = "Day of the week", 
+                            min = 1, max = 7, value = 1,
+                            step = 1)),
+                                        mainPanel(
+                                          plotOutput('DistanceBarplot2'))
 
-    ),
+    ))),
     width = 12
-  ))
+  )))
+
 
 
 # SERVER ------------
@@ -127,12 +104,15 @@ server <- function(input, output) {
   # This is helpful so we don't fuck up the other ones code whil collaborating
   source('tab2_renderFunctions.R', local = TRUE)
 
-
+# tab1 
+  
   output$popStationsHistogram <- renderPlot({
     numberOfStations <- input$numberOfStations
   })
 
 
+# tab2
+  
   output$DistanceBarplot <- renderPlot({
     showGoodweather <- input$showGoodweather
     showBadweather <- input$showBadweather
@@ -151,6 +131,15 @@ server <- function(input, output) {
                stat = "identity")
   })
 
+  output$DistanceBarplot2 <- renderPlot({
+    
+    ggplot()+
+      geom_bar(data = disdata %>% 
+                 group_by(hour) %>% 
+                 summarise(meandistance = mean(distance_meters)),
+               aes(y = meandistance, x = hour),
+               stat= "identity")
+  })
 }
 
 # CALL
