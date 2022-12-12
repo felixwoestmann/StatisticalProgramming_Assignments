@@ -1,3 +1,19 @@
+# Helper functions for tab 2 ---------------------------------------------------
+
+# Calc limits before filtering so its not affected by selected vars
+minMaxTemp <- function(groupedJourneys) {
+  max_temp <- max(groupedJourneys$mean_temperature)
+  min_temp <- min(groupedJourneys$mean_temperature)
+  return(c(min_temp, max_temp))
+}
+
+# Calc limits before filtering so its not affected by selected vars
+minMaxN <- function(groupedJourneys) {
+  max_n <- max(groupedJourneys$n)
+  min_n <- min(groupedJourneys$n)
+  return(c(min_n, max_n))
+}
+
 # Render functions for tab 2 -------------------------------------------------
 output$weatherRain <- renderPlot({
   showRain <- TRUE
@@ -7,14 +23,22 @@ output$weatherRain <- renderPlot({
 
   journeys_grouped <- journeysGroupedByTime(journeys, '20 min')
 
+  xLims <- minMaxTemp(journeys_grouped)
+  yLims <- minMaxN(journeys_grouped)
+
   journeys_grouped$rainLevel <- ifelse(journeys_grouped$mean_precipitation > 0, "Rain", "No Rain")
   journeys_grouped$rainLevel <- factor(journeys_grouped$rainLevel, levels = c("Rain", "No Rain"))
   # Filter based on Checkbox
   journeys_grouped <- journeys_grouped %>%
     filter(rainLevel == "Rain" & showRain == TRUE |
              rainLevel == "No Rain" & showNoRain == TRUE)
+
   ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = rainLevel)) +
-    geom_point(size = 2, shape = 23) +
+    geom_point(size = 2, shape = 21) +
+    lims(x = xLims, y = yLims) +
+    scale_color_manual(aesthetics = "fill",
+                       values = c("Rain" = wes_palette("Darjeeling1")[1],
+                                  "No Rain" = wes_palette("Darjeeling1")[2])) +
     theme(legend.position = "bottom")
 })
 
@@ -27,12 +51,11 @@ output$weatherWeekdayWeekend <- renderPlot({
   journeys_grouped <- journeysGroupedByTime(journeys, '20 min')
 
   # Calc limits before filtering so its not affected by selected vars
-  max_temp <- max(journeys_grouped$mean_temperature)
-  min_temp <- min(journeys_grouped$mean_temperature)
-  max_n <- max(journeys_grouped$n)
-  min_n <- min(journeys_grouped$n)
+  xLims <- minMaxTemp(journeys_grouped)
+  yLims <- minMaxN(journeys_grouped)
 
-  journeys_grouped$daytype <- ifelse(wday(journeys_grouped$chunks, label = TRUE) %in% c("Sat", "Sun"), "Weekend",
+  journeys_grouped$daytype <- ifelse(wday(journeys_grouped$chunks, label = TRUE) %in% c("Sat", "Sun"),
+                                     "Weekend",
                                      "Weekday")
 
   journeys_grouped$daytype <- factor(journeys_grouped$daytype, levels = c("Weekday", "Weekend"))
@@ -43,8 +66,11 @@ output$weatherWeekdayWeekend <- renderPlot({
 
 
   ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = daytype)) +
-    geom_point(size = 2, shape = 23) +
-    lims(x = c(min_temp, max_temp), y = c(min_n, max_n)) +
+    geom_point(size = 2, shape = 21) +
+    lims(x = xLims, y = yLims) +
+    scale_color_manual(aesthetics = "fill",
+                       values = c("Weekday" = wes_palette("Darjeeling1")[1],
+                                  "Weekend" = wes_palette("Darjeeling1")[2])) +
     theme(legend.position = "bottom")
 })
 
@@ -61,10 +87,8 @@ output$weatherTimeOfDay <- renderPlot({
   journeys_grouped <- journeysGroupedByTime(journeys, '20 min')
 
   # Calc limits before filtering so its not affected by selected vars
-  max_temp <- max(journeys_grouped$mean_temperature)
-  min_temp <- min(journeys_grouped$mean_temperature)
-  max_n <- max(journeys_grouped$n)
-  min_n <- min(journeys_grouped$n)
+  xLims <- minMaxTemp(journeys_grouped)
+  yLims <- minMaxN(journeys_grouped)
 
   journeys_grouped$daytime <- ifelse(hour(journeys_grouped$chunks) %in% 6:11, "Morning",
                                      ifelse(hour(journeys_grouped$chunks) %in% 12:17, "Afternoon",
@@ -83,8 +107,13 @@ output$weatherTimeOfDay <- renderPlot({
 
 
   ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = daytime)) +
-    geom_point(size = 2, shape = 23) +
-    lims(x = c(min_temp, max_temp), y = c(min_n, max_n)) +
+    geom_point(size = 2, shape = 21) +
+    lims(x = xLims, y = yLims) +
+    scale_color_manual(aesthetics = "fill",
+                       values = c("Morning" = wes_palette("Darjeeling1")[1],
+                                  "Afternoon" = wes_palette("Darjeeling1")[2],
+                                  "Evening" = wes_palette("Darjeeling1")[3],
+                                  "Night" = wes_palette("Darjeeling1")[4])) +
     theme(legend.position = "bottom")
 })
 
@@ -144,8 +173,8 @@ output$weatherCombined <- renderPlot({
     filter(rainLevel == "Rain" & showRain == TRUE |
              rainLevel == "No Rain" & showNoRain == TRUE)
 
-  ggplot(journeys_grouped, aes(x = mean_temperature, y = n, fill = daytimeAndDaytypeAndRain)) +
-    geom_point(size = 2, shape = 23) +
+  ggplot(journeys_grouped, aes(x = mean_temperature, y = n)) +
+    geom_point(size = 2, shape = 16) +
     lims(x = c(min_temp, max_temp), y = c(min_n, max_n))
 
 })

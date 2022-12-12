@@ -10,6 +10,7 @@ library(plotly)
 library(glue)
 library(stringr)
 library(zoo)
+library(wesanderson)
 
 source('load_data.R', local = TRUE)
 source('tab2_ui_declaration.R', local = TRUE)
