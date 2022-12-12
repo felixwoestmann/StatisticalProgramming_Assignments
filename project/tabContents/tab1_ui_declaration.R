@@ -11,13 +11,18 @@ tab1 <- function() {
                            animate = TRUE),),
              fluidRow(
                column(6,
-                      h3("Plot Overview"),
+                      h3("Overview of most popular stations"),
                       plotOutput("popularStattionsOverviewPlot")),
                column(6,
-                      h3("Map Overview"),
+                      h3("Map of most popular stations"),
                       plotlyOutput("popularStationsMapOverview",
                                    height = "100%",
                                    width = "100%"))
+             ),
+             fluidRow(
+               column(6,
+                      h3("Overview of overhang of station usage"),
+                      plotOutput("popularStationsOverhangPlot")),
              )
 
       ,

@@ -1,18 +1,18 @@
 getPopularStationData <- function(x) {
-  popular_start_stations <- x %>%
+  start_station_counts <- x %>%
     group_by(station_start) %>%
     summarise(n = n())
 
-  popular_end_stations <- x %>%
+  end_station_counts <- x %>%
     group_by(station_end) %>%
     summarise(n = n())
 
-  colnames(popular_start_stations) <- c("station", "n")
-  colnames(popular_end_stations) <- c("station", "n")
+  colnames(start_station_counts) <- c("station", "n")
+  colnames(end_station_counts) <- c("station", "n")
 
   # Combine counts of start and end stations
-  popular_stations <- popular_start_stations %>%
-    full_join(popular_end_stations, by = "station") %>%
+  popular_stations <- start_station_counts %>%
+    full_join(end_station_counts, by = "station") %>%
     mutate(n = n.x + n.y) %>%
     select(station, n)
 
@@ -79,5 +79,47 @@ output$popularStationsMapOverview <- renderPlotly({
       hoverinfo = "text",
       showlegend = FALSE,
     ) %>%
-    config(displayModeBar = FALSE)
+    config(displayModeBar = FALSE,
+           mapboxAccessToken = mapbox_token)
+})
+
+output$popularStationsOverhangPlot <- renderPlot({
+  start_station_counts <- journeys %>%
+    group_by(station_start) %>%
+    summarise(n = n())
+
+  end_station_counts <- journeys %>%
+    group_by(station_end) %>%
+    summarise(n = n())
+
+  colnames(start_station_counts) <- c("station", "n")
+  colnames(end_station_counts) <- c("station", "n")
+
+  station_overhang <- start_station_counts %>%
+    full_join(end_station_counts, by = "station") %>%
+    mutate(n = n.x - n.y) %>%
+    select(station, n)
+
+  colnames(station_overhang) <- c("station", "start_overhang")
+
+  # Add station names and coordinates
+  station_overhang <- merge(station_overhang,
+                            stations[, c('number', 'name', 'lat', 'lon')],
+                            by.x = "station",
+                            by.y = "number")
+
+
+  # Calculate overhang as percentage of start_station_counts and filter out stations with absoulute overhang smaller
+  # then 10
+  station_overhang <- station_overhang %>%
+    left_join(start_station_counts, by = "station") %>%
+    mutate(overhang = start_overhang / n * 100) %>%
+    select(station, name, overhang) %>%
+    filter(abs(overhang) > 2)
+
+
+  ggplot(station_overhang, aes(x = overhang, y = reorder(name, overhang))) +
+    geom_bar(stat = "identity", fill = getVectorOfColorsForBarplot(station_overhang$overhang)) +
+    theme(axis.text = element_text(size = 10)) +
+    labs(x = "Overhang size", y = "Station name")
 })
