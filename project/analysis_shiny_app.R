@@ -74,26 +74,29 @@ ui <- fluidPage(
       ),
       tabPanel('3. Journey Distance',
                mainPanel(sidebarLayout(
-                 
                  sidebarPanel(
-                 h3("Weather type"),
-                 checkboxInput('showGoodweather', label = 'Good Weather', value = TRUE),
-                 checkboxInput('showBadweather', label = 'Bad Weather', value = TRUE)),
-                                       mainPanel(
-                                         plotOutput('DistanceBarplot')),
-             
-                sidebarPanel(
-                h3("Day of the week"),
-                sliderInput('dayoftheweek', 
-                            label = "Day of the week", 
-                            min = 1, max = 7, value = 1)),
-                                        mainPanel(
-                                          plotOutput('DistanceBarplot2'))
+                   h3("Weather type"),
+                   checkboxInput('showGoodweather', label = 'Good Weather', value = TRUE),
+                   checkboxInput('showBadweather', label = 'Bad Weather', value = TRUE)
+                 ),
+                 mainPanel(
+                   plotOutput('DistanceBarplot')
+                 ),
 
-    ))),
-    width = 12
-  )))
-
+                 # sidebarPanel(
+                 #   h3("Day of the week"),
+                 #   sliderInput('dayoftheweek',
+                 #               label = "Day of the week",
+                 #               min = 1, max = 7, value = 1)),
+                 # mainPanel(
+                 #   plotOutput('DistanceBarplot2')
+                 # )
+               )
+               )
+      )
+    ),
+    width = 12)
+)
 
 
 # SERVER ------------
@@ -103,15 +106,15 @@ server <- function(input, output) {
   # This is helpful so we don't fuck up the other ones code whil collaborating
   source('tab2_renderFunctions.R', local = TRUE)
 
-# tab1 
-  
+  # tab1
+
   output$popStationsHistogram <- renderPlot({
     numberOfStations <- input$numberOfStations
   })
 
 
-# tab2
-  
+  # tab2
+
   output$DistanceBarplot <- renderPlot({
     showGoodweather <- input$showGoodweather
     showBadweather <- input$showBadweather
@@ -131,13 +134,13 @@ server <- function(input, output) {
   })
 
   output$DistanceBarplot2 <- renderPlot({
-    
-    ggplot()+
-      geom_bar(data = disdata %>% 
-                 group_by(hour) %>% 
-                 summarise(meandistance = mean(distance_meters)),
+
+    ggplot() +
+      geom_bar(data = disdata %>%
+        group_by(hour) %>%
+        summarise(meandistance = mean(distance_meters)),
                aes(y = meandistance, x = hour),
-               stat= "identity")
+               stat = "identity")
   })
 }
 
