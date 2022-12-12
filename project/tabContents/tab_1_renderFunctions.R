@@ -17,29 +17,46 @@ getPopularStationData <- function(x) {
     select(station, n)
 
   # Add station names and coordinates
-   popular_stations <- merge(popular_stations,
-                              stations[, c('number', 'name', 'lat', 'lon')],
-                              by.x = "station",
-                              by.y = "number")
+  popular_stations <- merge(popular_stations,
+                            stations[, c('number', 'name', 'lat', 'lon')],
+                            by.x = "station",
+                            by.y = "number")
 
   return(popular_stations)
 }
 
+getVectorOfColorsForBarplot <- function(x) {
+
+  if (length(x) %% 2 == 0) {
+    return(rep(wes_palette("Darjeeling1")[1:2], ceiling(length(x) / 2)))
+  } else {
+    length_x <- (length(x) - 1) / 2
+    return(c(rep(wes_palette("Darjeeling1")[1:2], ceiling(length_x)), wes_palette("Darjeeling1")[1]))
+  }
+}
+
 output$popularStattionsOverviewPlot <- renderPlot({
-  popular_stations <- getPopularStationData(journeys)
+  numberOfStations <- 10
+  numberOfStations <- input$popularStattionsNumberOfStations
 
-  popular_stations <- popular_stations %>%
+  popular_stations <- getPopularStationData(journeys) %>%
     arrange(desc(n)) %>%
-    head(10)
+    head(numberOfStations)
 
-  ggplot(popular_stations, aes(x = n, y = name)) +
-    geom_bar(stat = "identity", fill = rep(wes_palette("Darjeeling1")[1:2], ceiling(length(popular_stations$n) / 2))) +
+  ggplot(popular_stations, aes(x = n, y = reorder(name, n))) +
+    geom_bar(stat = "identity", fill = getVectorOfColorsForBarplot(popular_stations$n)) +
     theme(axis.text = element_text(size = 10)) +
     labs(x = "# Station was start or end of Journey", y = "Station name")
 })
 
 output$popularStationsMapOverview <- renderPlotly({
-  popular_stations <- getPopularStationData(journeys)
+  numberOfStations <- 10
+  numberOfStations <- input$popularStattionsNumberOfStations
+
+  popular_stations <- getPopularStationData(journeys) %>%
+    arrange(desc(n)) %>%
+    head(numberOfStations)
+
   ### Prepare Plot for Ljubljana
   plot_mapbox(popular_stations) %>%
     add_segments(x = -100, xend = -50, y = 50, yend = 75) %>%
@@ -57,5 +74,5 @@ output$popularStationsMapOverview <- renderPlotly({
       hoverinfo = "text",
       showlegend = FALSE,
     ) %>%
-     config(displayModeBar = FALSE)
+    config(displayModeBar = FALSE)
 })
