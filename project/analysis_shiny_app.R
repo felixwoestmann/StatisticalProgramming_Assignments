@@ -85,6 +85,7 @@ server <- function(input, output) {
   # This is helpful so we don't fuck up the other ones code whil collaborating
   #tab 2
 
+  source('tabContents/tab_1_renderFunctions.R', local = TRUE)
   source('tabContents/tab2_renderFunctions.R', local = TRUE)
 
   # tab1
