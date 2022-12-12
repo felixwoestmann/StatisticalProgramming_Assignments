@@ -52,19 +52,7 @@ ui <- fluidPage(
                sliderInput('numberOfStations', label = "", min = 1, max = 10, value = 5),
                plotOutput('popStationsHistogram'),
       ),
-      tabPanel('2. Weather and Journeys',
-               wellPanel(
-                 h2('Instructions'),
-                 p('This tab allows the user to interactively analyze data about weather and the amount of
-               journeys conducted.'),
-                 shiny::tags$li('- In the first step the user can filter the data based on some paramters. '),
-                 shiny::tags$li('- In the second step the user can see intersection of the sets below.')
-               ),
-               tab2UITop(),
-               hr(),
-               h1("▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼"),
-               tab2UIBottom(),
-      ),
+      tab2(),
       tabPanel('3. Journey Distance',
                mainPanel(sidebarLayout(
                  sidebarPanel(
@@ -98,7 +86,7 @@ server <- function(input, output) {
   # Import render functions for tab 2 ------------------------------------------------------------------------
   # This is helpful so we don't fuck up the other ones code whil collaborating
   #tab 2
-  
+
   source('tab2_renderFunctions.R', local = TRUE)
 
   # tab1
