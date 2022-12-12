@@ -4,8 +4,6 @@ tab1 <- function() {
              wellPanel(
                h2('Instructions'),
                p("This tab allows the user to interactively analyze data about the most popular stations."),
-             ),
-             wellPanel(
                h3('Select number of stations to display'),
                sliderInput('popularStattionsNumberOfStations',
                            label = "Number of stations",

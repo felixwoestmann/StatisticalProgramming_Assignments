@@ -59,17 +59,22 @@ output$popularStationsMapOverview <- renderPlotly({
 
   ### Prepare Plot for Ljubljana
   plot_mapbox(popular_stations) %>%
-    add_segments(x = -100, xend = -50, y = 50, yend = 75) %>%
+    add_segments(x = -100,
+                 xend = -50,
+                 y = 50,
+                 yend = 75) %>%
     layout(
       mapbox = list(style = "basic",
                     zoom = 12,
                     center = list(lon = 14.5, lat = 46.05))) %>%
-    # Add our data
     add_markers(
       x = ~lon,
       y = ~lat,
+      color = I(wes_palette("Darjeeling1")[1]),
       size = ~n,
-      color = "red",
+      marker = list(sizemode = 'area',
+                    sizeref = 0.3,
+                    sizemin = 2),
       text = ~name,
       hoverinfo = "text",
       showlegend = FALSE,
