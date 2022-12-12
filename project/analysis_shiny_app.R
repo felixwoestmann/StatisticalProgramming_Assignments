@@ -23,15 +23,7 @@ weather_data <- loadWeatherData()
 journeys <- loadJourneyData()
 journeys <- combineWeatherAndJourneyData(journeys, weather_data)
 
-## RENEE is doing stuff here ######################
-
-# goal: barplot with 24 bins for every hour showing average distance that was biked (in data time period)
-# - set to day of the week
-# - set to good or bad weather (blue is hour is bad, orange if hour is good) / OR MAYBE color shows good or bad
-# weather but 4 colors for 4 different weather types/combinations
-
-# 6. make it change according to the slider (1=monday)
-# check felix's exploratory shiny to tackle this barplot
+###
 
 disdata <- subset(journeys, select = c("timestamp_start", "distance_meters", "weekday", "avg_temperature_celsisus",
                                        "precipitation_mm"))
@@ -44,7 +36,7 @@ disdata$rain <- disdata$precipitation_mm > 0
 disdata$cold <- disdata$avg_temperature_celsisus < 5
 disdata$goodweather <- disdata$rain == FALSE & disdata$cold == FALSE
 
-## END of renees stuff for now ############################
+###
 
 
 # SHINY APP -----------------------------------------------------------------
@@ -105,6 +97,8 @@ ui <- fluidPage(
 server <- function(input, output) {
   # Import render functions for tab 2 ------------------------------------------------------------------------
   # This is helpful so we don't fuck up the other ones code whil collaborating
+  #tab 2
+  
   source('tab2_renderFunctions.R', local = TRUE)
 
   # tab1
@@ -114,7 +108,7 @@ server <- function(input, output) {
   })
 
 
-  # tab2
+  # tab3
 
   output$DistanceBarplot <- renderPlot({
     showGoodweather <- input$showGoodweather
@@ -134,15 +128,15 @@ server <- function(input, output) {
                stat = "identity")
   })
 
-  output$DistanceBarplot2 <- renderPlot({
-
-    ggplot() +
-      geom_bar(data = disdata %>%
-        group_by(hour) %>%
-        summarise(meandistance = mean(distance_meters)),
-               aes(y = meandistance, x = hour),
-               stat = "identity")
-  })
+  # output$DistanceBarplot2 <- renderPlot({
+  # 
+  #   ggplot() +
+  #     geom_bar(data = disdata %>%
+  #       group_by(hour) %>%
+  #       summarise(meandistance = mean(distance_meters)),
+  #              aes(y = meandistance, x = hour),
+  #              stat = "identity")
+  # })
 }
 
 # CALL
