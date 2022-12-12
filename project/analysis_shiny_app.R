@@ -86,8 +86,7 @@ ui <- fluidPage(
                 h3("Day of the week"),
                 sliderInput('dayoftheweek', 
                             label = "Day of the week", 
-                            min = 1, max = 7, value = 1,
-                            step = 1)),
+                            min = 1, max = 7, value = 1)),
                                         mainPanel(
                                           plotOutput('DistanceBarplot2'))
 
