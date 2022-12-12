@@ -13,7 +13,7 @@ library(zoo)
 library(wesanderson)
 
 source('load_data.R', local = TRUE)
-source('tab2_ui_declaration.R', local = TRUE)
+source('tabContents/tab2_ui_declaration.R', local = TRUE)
 
 mapbox_token <- 'pk.eyJ1Ijoid29lc3RtYW5uIiwiYSI6ImNsYjBxeDQ3NTB1YzEzc21saGx2c3hqMTEifQ.Szpy3fIYLgIWNZkdFU5PHg'
 Sys.setenv('MAPBOX_TOKEN' = mapbox_token)
@@ -87,7 +87,7 @@ server <- function(input, output) {
   # This is helpful so we don't fuck up the other ones code whil collaborating
   #tab 2
 
-  source('tab2_renderFunctions.R', local = TRUE)
+  source('tabContents/tab2_renderFunctions.R', local = TRUE)
 
   # tab1
 
