@@ -14,8 +14,32 @@ minMaxN <- function(groupedJourneys) {
   return(c(min_n, max_n))
 }
 
-# Add units to labels
+# Add Celsius unit to number
 toCelsius <- function(x) { format(paste0(x, " °C")) }
+
+addRainLevel <- function(x) {
+  x$rainLevel <- ifelse(x$mean_precipitation > 0, "Rain", "No Rain")
+  x$rainLevel <- factor(x$rainLevel, levels = c("Rain", "No Rain"))
+  return(x)
+}
+
+addDayType <- function(x) {
+  x$daytype <- ifelse(wday(x$chunks, label = TRUE) %in% c("Sat", "Sun"),
+                      "Weekend",
+                      "Weekday")
+  x$daytype <- factor(x$daytype, levels = c("Weekday", "Weekend"))
+  return(x)
+}
+
+addDayTime <- function(x) {
+  x$daytime <- ifelse(hour(x$chunks) %in% 6:11, "Morning",
+                      ifelse(hour(x$chunks) %in% 12:17, "Afternoon",
+                             ifelse(hour(x$chunks) %in% 18:23, "Evening",
+                                    ifelse(hour(x$chunks) %in% 0:5, "Night", NA))))
+
+  x$daytime <- factor(x$daytime, levels = c("Morning", "Afternoon", "Evening", "Night"))
+  return(x)
+}
 
 # Render functions for tab 2 -------------------------------------------------
 output$weatherRain <- renderPlot({
@@ -29,8 +53,7 @@ output$weatherRain <- renderPlot({
   xLims <- minMaxTemp(journeys_grouped)
   yLims <- minMaxN(journeys_grouped)
 
-  journeys_grouped$rainLevel <- ifelse(journeys_grouped$mean_precipitation > 0, "Rain", "No Rain")
-  journeys_grouped$rainLevel <- factor(journeys_grouped$rainLevel, levels = c("Rain", "No Rain"))
+  journeys_grouped <- addRainLevel(journeys_grouped)
   # Filter based on Checkbox
   journeys_grouped <- journeys_grouped %>%
     filter(rainLevel == "Rain" & showRain == TRUE |
@@ -42,7 +65,9 @@ output$weatherRain <- renderPlot({
     scale_color_manual(aesthetics = "fill",
                        values = c("Rain" = wes_palette("Darjeeling1")[1],
                                   "No Rain" = wes_palette("Darjeeling1")[2])) +
-    scale_x_continuous(breaks = seq(0, 14, 2), labels = toCelsius(seq(0, 14, 2))) +
+    scale_x_continuous(breaks = seq(0, 14, 2),
+                       labels = toCelsius(seq(0, 14, 2)),
+                       limits = xLims) +
     labs(x = "Mean temperature", y = "Number of Journeys") +
     theme(legend.position = "bottom") +
     guides(fill = guide_legend(title = "Rain level"))
@@ -60,11 +85,7 @@ output$weatherWeekdayWeekend <- renderPlot({
   xLims <- minMaxTemp(journeys_grouped)
   yLims <- minMaxN(journeys_grouped)
 
-  journeys_grouped$daytype <- ifelse(wday(journeys_grouped$chunks, label = TRUE) %in% c("Sat", "Sun"),
-                                     "Weekend",
-                                     "Weekday")
-
-  journeys_grouped$daytype <- factor(journeys_grouped$daytype, levels = c("Weekday", "Weekend"))
+  journeys_grouped <- addDayType(journeys_grouped)
   # Filter based on Checkbox
   journeys_grouped <- journeys_grouped %>%
     filter(daytype == "Weekday" & showWeekday == TRUE |
@@ -77,7 +98,9 @@ output$weatherWeekdayWeekend <- renderPlot({
     scale_color_manual(aesthetics = "fill",
                        values = c("Weekday" = wes_palette("Darjeeling1")[1],
                                   "Weekend" = wes_palette("Darjeeling1")[2])) +
-    scale_x_continuous(breaks = seq(0, 14, 2), labels = toCelsius(seq(0, 14, 2))) +
+    scale_x_continuous(breaks = seq(0, 14, 2),
+                       labels = toCelsius(seq(0, 14, 2)),
+                       limits = xLims) +
     labs(x = "Mean temperature", y = "Number of Journeys") +
     theme(legend.position = "bottom") +
     guides(fill = guide_legend(title = "Type of day"))
@@ -99,13 +122,7 @@ output$weatherTimeOfDay <- renderPlot({
   xLims <- minMaxTemp(journeys_grouped)
   yLims <- minMaxN(journeys_grouped)
 
-  journeys_grouped$daytime <- ifelse(hour(journeys_grouped$chunks) %in% 6:11, "Morning",
-                                     ifelse(hour(journeys_grouped$chunks) %in% 12:17, "Afternoon",
-                                            ifelse(hour(journeys_grouped$chunks) %in% 18:23, "Evening",
-                                                   ifelse(hour(journeys_grouped$chunks) %in% 0:5, "Night", NA))))
-
-  journeys_grouped$daytime <- factor(journeys_grouped$daytime,
-                                     levels = c("Morning", "Afternoon", "Evening", "Night"))
+  journeys_grouped <- addDayTime(journeys_grouped)
 
   # Filter based on Checkbox
   journeys_grouped <- journeys_grouped %>%
@@ -123,7 +140,9 @@ output$weatherTimeOfDay <- renderPlot({
                                   "Afternoon" = wes_palette("Darjeeling1")[2],
                                   "Evening" = wes_palette("Darjeeling1")[3],
                                   "Night" = wes_palette("Darjeeling1")[4])) +
-    scale_x_continuous(breaks = seq(0, 14, 2), labels = toCelsius(seq(0, 14, 2))) +
+    scale_x_continuous(breaks = seq(0, 14, 2),
+                       labels = toCelsius(seq(0, 14, 2)),
+                       limits = xLims) +
     labs(x = "Mean temperature", y = "Number of Journeys") +
     theme(legend.position = "bottom") +
     guides(fill = guide_legend(title = "Time of day"))
@@ -154,20 +173,9 @@ output$weatherCombined <- renderPlot({
   xLims <- minMaxTemp(journeys_grouped)
   yLims <- minMaxN(journeys_grouped)
 
-  journeys_grouped$daytime <- ifelse(hour(journeys_grouped$chunks) %in% 6:11, "Morning",
-                                     ifelse(hour(journeys_grouped$chunks) %in% 12:17, "Afternoon",
-                                            ifelse(hour(journeys_grouped$chunks) %in% 18:23, "Evening",
-                                                   ifelse(hour(journeys_grouped$chunks) %in% 0:5, "Night", NA))))
-
-  journeys_grouped$daytime <- factor(journeys_grouped$daytime, levels = c("Morning", "Afternoon", "Evening", "Night"))
-
-  journeys_grouped$daytype <- ifelse(wday(journeys_grouped$chunks, label = TRUE) %in% c("Sat", "Sun"), "Weekend",
-                                     "Weekday")
-
-  journeys_grouped$daytype <- factor(journeys_grouped$daytype, levels = c("Weekday", "Weekend"))
-
-  journeys_grouped$rainLevel <- ifelse(journeys_grouped$mean_precipitation > 0, "Rain", "No Rain")
-  journeys_grouped$rainLevel <- factor(journeys_grouped$rainLevel, levels = c("Rain", "No Rain"))
+  journeys_grouped <- addDayTime(journeys_grouped)
+  journeys_grouped <- addDayType(journeys_grouped)
+  journeys_grouped <- addRainLevel(journeys_grouped)
 
   # Combine daytime and daytype
   journeys_grouped$daytimeAndDaytypeAndRain <- paste(journeys_grouped$daytime, journeys_grouped$daytype,
@@ -186,6 +194,8 @@ output$weatherCombined <- renderPlot({
   ggplot(journeys_grouped, aes(x = mean_temperature, y = n)) +
     geom_point(size = 2, shape = 21, fill = wes_palette('Darjeeling1')[4]) +
     lims(x = xLims, y = yLims) +
-    scale_x_continuous(breaks = seq(0, 14, 2), labels = toCelsius(seq(0, 14, 2))) +
+    scale_x_continuous(breaks = seq(0, 14, 2),
+                       labels = toCelsius(seq(0, 14, 2)),
+                       limits = xLims) +
     labs(x = "Mean temperature", y = "Number of Journeys")
 })
