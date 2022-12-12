@@ -14,6 +14,9 @@ minMaxN <- function(groupedJourneys) {
   return(c(min_n, max_n))
 }
 
+# Add units to labels
+toCelsius <- function(x) { format(paste0(x, " °C")) }
+
 # Render functions for tab 2 -------------------------------------------------
 output$weatherRain <- renderPlot({
   showRain <- TRUE
@@ -39,7 +42,10 @@ output$weatherRain <- renderPlot({
     scale_color_manual(aesthetics = "fill",
                        values = c("Rain" = wes_palette("Darjeeling1")[1],
                                   "No Rain" = wes_palette("Darjeeling1")[2])) +
-    theme(legend.position = "bottom")
+    scale_x_continuous(breaks = seq(0, 14, 2), labels = toCelsius(seq(0, 14, 2))) +
+    labs(x = "Mean temperature", y = "Number of Journeys") +
+    theme(legend.position = "bottom") +
+    guides(fill = guide_legend(title = "Rain level"))
 })
 
 output$weatherWeekdayWeekend <- renderPlot({
@@ -71,7 +77,10 @@ output$weatherWeekdayWeekend <- renderPlot({
     scale_color_manual(aesthetics = "fill",
                        values = c("Weekday" = wes_palette("Darjeeling1")[1],
                                   "Weekend" = wes_palette("Darjeeling1")[2])) +
-    theme(legend.position = "bottom")
+    scale_x_continuous(breaks = seq(0, 14, 2), labels = toCelsius(seq(0, 14, 2))) +
+    labs(x = "Mean temperature", y = "Number of Journeys") +
+    theme(legend.position = "bottom") +
+    guides(fill = guide_legend(title = "Type of day"))
 })
 
 output$weatherTimeOfDay <- renderPlot({
@@ -114,7 +123,10 @@ output$weatherTimeOfDay <- renderPlot({
                                   "Afternoon" = wes_palette("Darjeeling1")[2],
                                   "Evening" = wes_palette("Darjeeling1")[3],
                                   "Night" = wes_palette("Darjeeling1")[4])) +
-    theme(legend.position = "bottom")
+    scale_x_continuous(breaks = seq(0, 14, 2), labels = toCelsius(seq(0, 14, 2))) +
+    labs(x = "Mean temperature", y = "Number of Journeys") +
+    theme(legend.position = "bottom") +
+    guides(fill = guide_legend(title = "Time of day"))
 })
 
 output$weatherCombined <- renderPlot({
@@ -139,10 +151,8 @@ output$weatherCombined <- renderPlot({
 
   journeys_grouped <- journeysGroupedByTime(journeys, '20 min')
   # Calc limits before filtering so its not affected by selected vars
-  max_temp <- max(journeys_grouped$mean_temperature)
-  min_temp <- min(journeys_grouped$mean_temperature)
-  max_n <- max(journeys_grouped$n)
-  min_n <- min(journeys_grouped$n)
+  xLims <- minMaxTemp(journeys_grouped)
+  yLims <- minMaxN(journeys_grouped)
 
   journeys_grouped$daytime <- ifelse(hour(journeys_grouped$chunks) %in% 6:11, "Morning",
                                      ifelse(hour(journeys_grouped$chunks) %in% 12:17, "Afternoon",
@@ -174,7 +184,8 @@ output$weatherCombined <- renderPlot({
              rainLevel == "No Rain" & showNoRain == TRUE)
 
   ggplot(journeys_grouped, aes(x = mean_temperature, y = n)) +
-    geom_point(size = 2, shape = 16) +
-    lims(x = c(min_temp, max_temp), y = c(min_n, max_n))
-
+    geom_point(size = 2, shape = 21, fill = wes_palette('Darjeeling1')[4]) +
+    lims(x = xLims, y = yLims) +
+    scale_x_continuous(breaks = seq(0, 14, 2), labels = toCelsius(seq(0, 14, 2))) +
+    labs(x = "Mean temperature", y = "Number of Journeys")
 })
