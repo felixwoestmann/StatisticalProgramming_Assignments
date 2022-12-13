@@ -67,8 +67,6 @@ ui <- fluidPage(
                    h3("Weather type"),
                    checkboxInput('showGoodweather', label = 'Good Weather', value = TRUE),
                    checkboxInput('showBadweather', label = 'Bad Weather', value = TRUE),
-                   # actionButton('refresh', label = NULL, icon = icon("arrows-rotate"),
-                   #              class="btn-xs", style = "float: right;")
                    ),
                  mainPanel(
                    plotOutput('DistanceBarplot')),
@@ -101,7 +99,6 @@ server <- function(input, output) {
     showBadweather <- input$showBadweather
 
     disdata$goodweather <- as.factor(disdata$goodweather)
-    # daytime <- disdata$hour
 
     disdata <- disdata %>%
       filter(disdata$goodweather == "FALSE" & showBadweather == TRUE |
@@ -111,14 +108,26 @@ server <- function(input, output) {
         geom_bar(data = disdata %>%
         group_by(hour) %>%
         summarise(meandistance = mean(distance_meters)),
-               aes(y = meandistance, x = hour),
+               aes(y = meandistance, x = hour, fill = wes_palette("Darjeeling1")[1]),
                stat = "identity")+
-        coord_cartesian(xlim = NULL, ylim = c(0, 3000), default = TRUE)
-      # scale_color_manual(aesthetics = "fill",
-      #                    values = c("Weekday" = wes_palette("Darjeeling1")[1],
-      #                               "Weekend" = wes_palette("Darjeeling1")[2]))
-  })
-
+        coord_cartesian(xlim = NULL, ylim = c(0, 3000), default = TRUE)+
+        theme(legend.position = "none")
+    
+    
+        # scale_color_manual(aesthetics = "fill",
+        #                    values = c("Morning" = wes_palette("Darjeeling1")[1],
+        #                               "Afternoon" = wes_palette("Darjeeling1")[2],
+        #                               "Evening" = wes_palette("Darjeeling1")[3],
+        #                               "Night" = wes_palette("Darjeeling1")[4]))
+        # 
+    # scale_color_manual(name = "hour",
+    #                    values = c("(00,06]" = wes_palette("Darjeeling1")[4],
+    #                               "(06,12]" = wes_palette("Darjeeling1")[1],
+    #                               "(12,18]" = wes_palette("Darjeeling1")[2],
+    #                               "(18,00]" = wes_palette("Darjeeling1")[3]),
+    #                    labels = c("Night","Morning", "Afternoon", "Evening"))+
+  
+    })
 
   output$DistanceBarplot2 <- renderPlot({
  
@@ -139,9 +148,10 @@ server <- function(input, output) {
       geom_bar(data = disdata %>%
         group_by(hour) %>%
         summarise(meandistance = mean(distance_meters)),
-               aes(y = meandistance, x = hour),
+               aes(y = meandistance, x = hour, fill = wes_palette("Darjeeling1")[1]),
                stat = "identity")+
-      coord_cartesian(xlim = NULL, ylim = c(0, 3000), default = TRUE)
+      coord_cartesian(xlim = NULL, ylim = c(0, 3000), default = TRUE)+
+      theme(legend.position = "none")
   })
 }
 
