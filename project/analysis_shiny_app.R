@@ -32,11 +32,14 @@ disdata <- subset(journeys, select = c("timestamp_start", "distance_meters", "we
 disdata$hour <- as.factor(substr(disdata$timestamp,
                                  start = 12, stop = 13))
 disdata$weekday <- as.factor(disdata$weekday)
+mean(disdata$avg_temperature_celsisus)
 
 disdata$rain <- disdata$precipitation_mm > 0
-disdata$cold <- disdata$avg_temperature_celsisus < 5
+disdata$cold <- disdata$avg_temperature_celsisus < 5.3
 disdata$goodweather <- disdata$rain == FALSE & disdata$cold == FALSE
 
+weekdays <- c("Monday", "Tuesday", "Wednesday",
+              "Thursday", "Friday", "Saturday", "Sunday")
 ###
 
 
@@ -52,49 +55,38 @@ ui <- fluidPage(
       tab1(),
       tab2(),
       tabPanel('3. Journey Distance',
-               mainPanel(sidebarLayout(
+               
                  sidebarPanel(
                    h3("Weather type"),
                    checkboxInput('showGoodweather', label = 'Good Weather', value = TRUE),
-                   checkboxInput('showBadweather', label = 'Bad Weather', value = TRUE)
-                 ),
+                   checkboxInput('showBadweather', label = 'Bad Weather', value = TRUE),
+                   # actionButton('refresh', label = NULL, icon = icon("arrows-rotate"),
+                   #              class="btn-xs", style = "float: right;")
+                   ),
                  mainPanel(
-                   plotOutput('DistanceBarplot')
-                 ),
+                   plotOutput('DistanceBarplot')),
 
-                 # sidebarPanel(
-                 #   h3("Day of the week"),
-                 #   sliderInput('dayoftheweek',
-                 #               label = "Day of the week",
-                 #               min = 1, max = 7, value = 1)),
-                 # mainPanel(
-                 #   plotOutput('DistanceBarplot2')
-                 # )
-               )
-               )
-      )
-    ),
+                sidebarPanel(
+                  h3("Day of the week"),
+                  sliderTextInput(inputId = 'dayoftheweek',
+                    label = "",
+                    choices = weekdays)),
+                mainPanel(
+                  plotOutput('DistanceBarplot2'))
+                )
+               ),
     width = 12)
-)
-
+             )
 
 # SERVER ------------
 
 server <- function(input, output) {
   # Import render functions for tab 2 ------------------------------------------------------------------------
-  # This is helpful so we don't fuck up the other ones code whil collaborating
-  #tab 2
-
+  # This is helpful so we don't fuck up the other ones code while collaborating
+  
   source('tabContents/tab_1_renderFunctions.R', local = TRUE)
   source('tabContents/tab2_renderFunctions.R', local = TRUE)
-
-  # tab1
-
-  output$popStationsHistogram <- renderPlot({
-    numberOfStations <- input$numberOfStations
-  })
-
-
+  
   # tab3
 
   output$DistanceBarplot <- renderPlot({
@@ -107,6 +99,38 @@ server <- function(input, output) {
       filter(disdata$goodweather == "FALSE" & showBadweather == TRUE |
                disdata$goodweather == "TRUE" & showGoodweather == TRUE)
 
+    
+    ggplot() +
+        geom_bar(data = disdata %>%
+        group_by(hour) %>%
+        summarise(meandistance = mean(distance_meters)),
+               aes(y = meandistance, x = hour),
+               stat = "identity")
+  })
+
+
+  output$DistanceBarplot2 <- renderPlot({
+  #   showMonday <- slider_value
+  #   showTuesday <- input$dayoftheweek[2]
+  #   showWednesday <- input$dayoftheweek[3]
+  #   showThursday <- input$dayoftheweek[4]
+  #   showFriday <- input$dayoftheweek[5]
+  #   showSaturday <- input$dayoftheweek[6]
+  #   showSunday <- input$dayoftheweek[7]
+  #   
+    disdata$weekday <- as.factor(disdata$weekday)
+    slider_value <- reactiveVal(weekdays)
+
+    disdata <- disdata %>%
+      filter(disdata$weekday == "Mon" & slider_value == "Monday" |
+               disdata$weekday == "Tue" & slider_value == "Tuesday"|
+               disdata$weekday == "Wed" & slider_value == "Wednesday"|
+               disdata$weekday == "Thu" & slider_value == "Thursday"|
+               disdata$weekday == "Fri" & slider_value == "Friday"|
+               disdata$weekday == "Sat" & slider_value == "Saturday"|
+               disdata$weekday == "Sun" & slider_value == "Sunday")
+
+
     ggplot() +
       geom_bar(data = disdata %>%
         group_by(hour) %>%
@@ -114,16 +138,6 @@ server <- function(input, output) {
                aes(y = meandistance, x = hour),
                stat = "identity")
   })
-
-  # output$DistanceBarplot2 <- renderPlot({
-  # 
-  #   ggplot() +
-  #     geom_bar(data = disdata %>%
-  #       group_by(hour) %>%
-  #       summarise(meandistance = mean(distance_meters)),
-  #              aes(y = meandistance, x = hour),
-  #              stat = "identity")
-  # })
 }
 
 # CALL
