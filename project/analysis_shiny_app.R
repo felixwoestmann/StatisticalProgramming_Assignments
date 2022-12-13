@@ -119,7 +119,7 @@ server <- function(input, output) {
   #   showSunday <- input$dayoftheweek[7]
   #   
     disdata$weekday <- as.factor(disdata$weekday)
-    slider_value <- reactiveVal(weekdays)
+    slider_value <- input$dayoftheweek
 
     disdata <- disdata %>%
       filter(disdata$weekday == "Mon" & slider_value == "Monday" |
