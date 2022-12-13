@@ -55,7 +55,6 @@ ui <- fluidPage(
       tab1(),
       tab2(),
       tabPanel('3. Journey Distance',
-               
                wellPanel(
                  h2('Instructions'),
                  p("This tab allows the user to interactively analyze data about the average distance of bicikelj travels"),

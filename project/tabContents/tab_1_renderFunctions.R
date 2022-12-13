@@ -35,6 +35,8 @@ getVectorOfColorsForBarplot <- function(x) {
   }
 }
 
+toPercent <- function(x) { format(paste0(x, "%")) }
+
 output$popularStattionsOverviewPlot <- renderPlot({
   numberOfStations <- 10
   numberOfStations <- input$popularStattionsNumberOfStations
@@ -114,12 +116,19 @@ output$popularStationsOverhangPlot <- renderPlot({
   station_overhang <- station_overhang %>%
     left_join(start_station_counts, by = "station") %>%
     mutate(overhang = start_overhang / n * 100) %>%
-    select(station, name, overhang) %>%
-    filter(abs(overhang) > 2)
+    select(station, name, overhang, n) %>%
+    filter(abs(overhang) > 2) %>%
+    arrange(desc(overhang))
 
 
   ggplot(station_overhang, aes(x = overhang, y = reorder(name, overhang))) +
-    geom_bar(stat = "identity", fill = getVectorOfColorsForBarplot(station_overhang$overhang)) +
+    geom_bar(stat = "identity",
+             fill = getVectorOfColorsForBarplot(station_overhang$overhang)) +
+    geom_text(aes(label = n),
+              nudge_x = ifelse(station_overhang$overhang < 0, 0.9, -0.9),
+              fontface = "bold") +
     theme(axis.text = element_text(size = 10)) +
-    labs(x = "Overhang size", y = "Station name")
+    scale_x_continuous(breaks = seq(-15, 15, 2),
+                       labels = toPercent(seq(-15, 15, 2))) +
+    labs(x = "Overhang", y = "Station name")
 })
