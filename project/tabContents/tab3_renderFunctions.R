@@ -14,6 +14,8 @@ output$DistanceBarplot <- renderPlot({
                summarise(meandistance = mean(distance_meters)),
              aes(y = meandistance, x = hour, fill = wes_palette("Darjeeling1")[1]),
              stat = "identity")+
+    xlab("Hour of the day")+
+    ylab("Average distance in meters")+
     coord_cartesian(xlim = NULL, ylim = c(0, 3000), default = TRUE)+
     theme(legend.position = "none")
   
@@ -54,6 +56,8 @@ output$DistanceBarplot2 <- renderPlot({
                summarise(meandistance = mean(distance_meters)),
              aes(y = meandistance, x = hour, fill = wes_palette("Darjeeling1")[1]),
              stat = "identity")+
+    xlab("Hour of the day")+
+    ylab("Average distance in meters")+
     coord_cartesian(xlim = NULL, ylim = c(0, 3000), default = TRUE)+
     theme(legend.position = "none")
 })
