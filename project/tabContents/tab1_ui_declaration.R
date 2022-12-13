@@ -4,7 +4,7 @@ tab1 <- function() {
              tabsetPanel(
                popularStationsPanel(),
                overhangPanel(),
-               tabPanel('Ridgeardson')
+               ridgePlotPanel(),
              )
     )
   )
@@ -50,8 +50,11 @@ overhangPanel <- function() {
                     p("To be easier comparable we report the overhang as a percentage of the total number of journeys
                      started at this station."),
                     p("Only stations are shown where the absolute overhang is larger than 2%."),
-                    br(),
                     p("Displayed in the bars is the number of journeys at the station."),
+                    br(),
+                    p("The map shows the same data as the barplot, the size of the overhang is shown in the area of
+                    the circles, the color indicates wether it is positive or negative."),
+                    p("Red indicates a positive overhang, green indicates a negative overhang."),
                   ),
                   fluidRow(
                     column(6,
@@ -65,4 +68,15 @@ overhangPanel <- function() {
                   ),
   )
   )
+}
+
+ridgePlotPanel <- function() {
+  return(
+    tabPanel("Ridgeardson",
+             plotOutput("ridgePlot",
+                        height = "650px",
+                        width = "100%")
+  )
+
+)
 }

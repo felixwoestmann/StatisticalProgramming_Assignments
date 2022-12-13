@@ -184,3 +184,26 @@ output$popularStationsOverhangMap <- renderPlotly({
     config(displayModeBar = FALSE,
            mapboxAccessToken = mapbox_token)
 })
+
+output$ridgePlot <- renderPlot({
+  # only get station_start, hour and timestamp_start from journeys
+  journeys_ridge <- journeys %>%
+    select(station_start, hour)
+
+  # only select 5 stations
+  station_numbers <- c(1, 2, 3, 4,5,6,7,8)
+  journeys_ridge <- journeys_ridge %>%
+    filter(station_start %in% station_numbers)
+
+
+  # add names of stations
+  journeys_ridge <- merge(journeys_ridge,
+                          stations[, c('number', 'name')],
+                          by.x = "station_start",
+                          by.y = "number")
+
+  ggplot(journeys_ridge, aes(x = hour, y = name,fill=name)) +
+    geom_density_ridges() +
+    scale_x_continuous(breaks = seq(0, 24, 2)) +
+    theme(legend.position = "none")
+})

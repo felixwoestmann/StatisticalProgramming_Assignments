@@ -27,12 +27,16 @@ loadJourneyData <- function() {
                           'location_end_lat', 'location_end_lon',
                           'distance_meters', 'time_minutes')
 
+  dbDisconnect(journeyConn)
+
   journeys$timestamp_start <- as.POSIXct(journeys$timestamp_start,
                                          format = "%Y-%m-%d %H:%M:%S")
   journeys$timestamp_end <- as.POSIXct(journeys$timestamp_end,
                                        format = "%Y-%m-%d %H:%M:%S")
   journeys$weekday <- wday(journeys$timestamp_start, label = TRUE)
   journeys$is_weekend <- journeys$weekday %in% c("Sat", "Sun")
+
+  journeys$hour <- hour(journeys$timestamp_start)
 
   return(journeys)
 }
@@ -75,7 +79,7 @@ combineWeatherAndJourneyData <- function(journeys, weather_data) {
                                                             roll = "nearest"]]
 
   # Delete the dummy timestamp column
-  journeys <- journeys[, -15]
+  journeys <- journeys[, -16]
 
   return(journeys)
 }
