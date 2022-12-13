@@ -37,60 +37,12 @@ getVectorOfColorsForBarplot <- function(x) {
 
 toPercent <- function(x) { format(paste0(x, "%")) }
 
-output$popularStattionsOverviewPlot <- renderPlot({
-  numberOfStations <- 10
-  numberOfStations <- input$popularStattionsNumberOfStations
-
-  popular_stations <- getPopularStationData(journeys) %>%
-    arrange(desc(n)) %>%
-    head(numberOfStations)
-
-  ggplot(popular_stations, aes(x = n, y = reorder(name, n))) +
-    geom_bar(stat = "identity", fill = getVectorOfColorsForBarplot(popular_stations$n)) +
-    theme(axis.text = element_text(size = 10)) +
-    labs(x = "# Station was start or end of Journey", y = "Station name")
-})
-
-output$popularStationsMapOverview <- renderPlotly({
-  numberOfStations <- 10
-  numberOfStations <- input$popularStattionsNumberOfStations
-
-  popular_stations <- getPopularStationData(journeys) %>%
-    arrange(desc(n)) %>%
-    head(numberOfStations)
-
-  ### Prepare Plot for Ljubljana
-  plot_mapbox(popular_stations) %>%
-    add_segments(x = -100,
-                 xend = -50,
-                 y = 50,
-                 yend = 75) %>%
-    layout(
-      mapbox = list(style = "basic",
-                    zoom = 12,
-                    center = list(lon = 14.5, lat = 46.05))) %>%
-    add_markers(
-      x = ~lon,
-      y = ~lat,
-      color = I(wes_palette("Darjeeling1")[1]),
-      size = ~n,
-      marker = list(sizemode = 'area',
-                    sizeref = 0.3,
-                    sizemin = 2),
-      text = ~name,
-      hoverinfo = "text",
-      showlegend = FALSE,
-    ) %>%
-    config(displayModeBar = FALSE,
-           mapboxAccessToken = mapbox_token)
-})
-
-output$popularStationsOverhangPlot <- renderPlot({
-  start_station_counts <- journeys %>%
+getOverhangStationData <- function(x) {
+  start_station_counts <- x %>%
     group_by(station_start) %>%
     summarise(n = n())
 
-  end_station_counts <- journeys %>%
+  end_station_counts <- x %>%
     group_by(station_end) %>%
     summarise(n = n())
 
@@ -120,6 +72,54 @@ output$popularStationsOverhangPlot <- renderPlot({
     filter(abs(overhang) > 2) %>%
     arrange(desc(overhang))
 
+  return(station_overhang)
+}
+
+output$popularStattionsOverviewPlot <- renderPlot({
+  numberOfStations <- 10
+  numberOfStations <- input$popularStattionsNumberOfStations
+
+  popular_stations <- getPopularStationData(journeys) %>%
+    arrange(desc(n)) %>%
+    head(numberOfStations)
+
+  ggplot(popular_stations, aes(x = n, y = reorder(name, n))) +
+    geom_bar(stat = "identity", fill = getVectorOfColorsForBarplot(popular_stations$n)) +
+    theme(axis.text = element_text(size = 10)) +
+    labs(x = "# Station was start or end of Journey", y = "Station name")
+})
+
+output$popularStationsMapOverview <- renderPlotly({
+  numberOfStations <- 10
+  numberOfStations <- input$popularStattionsNumberOfStations
+
+  popular_stations <- getPopularStationData(journeys) %>%
+    arrange(desc(n)) %>%
+    head(numberOfStations)
+
+  ### Prepare Plot for Ljubljana
+  plot_mapbox(popular_stations) %>%
+    add_segments(x = -100, xend = -50, y = 50, yend = 75) %>%
+    layout(mapbox = list(style = "basic", zoom = 12, center = list(lon = 14.5, lat = 46.05))) %>%
+    add_markers(
+      x = ~lon,
+      y = ~lat,
+      color = I(wes_palette("Darjeeling1")[1]),
+      size = ~n,
+      marker = list(sizemode = 'area',
+                    sizeref = 0.3,
+                    sizemin = 2),
+      text = ~name,
+      hoverinfo = "text",
+      showlegend = FALSE,
+    ) %>%
+    config(displayModeBar = FALSE,
+           mapboxAccessToken = mapbox_token)
+})
+
+output$popularStationsOverhangPlot <- renderPlot({
+  station_overhang <- getOverhangStationData(journeys)
+
 
   ggplot(station_overhang, aes(x = overhang, y = reorder(name, overhang))) +
     geom_bar(stat = "identity",
@@ -131,4 +131,56 @@ output$popularStationsOverhangPlot <- renderPlot({
     scale_x_continuous(breaks = seq(-15, 15, 2),
                        labels = toPercent(seq(-15, 15, 2))) +
     labs(x = "Overhang", y = "Station name")
+})
+
+output$popularStationsOverhangMap <- renderPlotly({
+  station_overhang <- getOverhangStationData(journeys)
+  # add lat and lon from station data
+  station_overhang <- merge(station_overhang,
+                            stations[, c('number', 'lat', 'lon')],
+                            by.x = "station",
+                            by.y = "number")
+
+  # split overhang info into two columns to more easily disply on map
+  station_overhang <- station_overhang %>%
+    mutate(overhang_abs = abs(overhang),
+           overhang_neg = overhang < 0)
+
+  # split station overhang into two data frames by overhang_neg
+  station_overhang_pos <- station_overhang %>%
+    filter(overhang_neg == FALSE) %>%
+    select(station, name, overhang_abs, lat, lon)
+
+  station_overhang_neg <- station_overhang %>%
+    filter(overhang_neg == TRUE) %>%
+    select(station, name, overhang_abs, lat, lon)
+
+  ### Prepare Plot for Ljubljana
+  plot_mapbox(station_overhang) %>%
+    add_segments(x = -100, xend = -50, y = 50, yend = 75) %>%
+    layout(mapbox = list(style = "basic", zoom = 10, center = list(lon = 14.51, lat = 46.05))) %>%
+    add_markers(
+      data = station_overhang_pos,
+      x = ~lon,
+      y = ~lat,
+      color = I(wes_palette("Darjeeling1")[1]),
+      size = ~overhang_abs,
+      marker = list(sizemode = 'area', sizeref = 0.3, sizemin = 2),
+      text = ~name,
+      hoverinfo = "text",
+      showlegend = FALSE,
+    ) %>%
+    add_markers(
+      data = station_overhang_neg,
+      x = ~lon,
+      y = ~lat,
+      color = I(wes_palette("Darjeeling1")[2]),
+      size = ~overhang_abs,
+      marker = list(sizemode = 'area', sizeref = 0.3, sizemin = 2),
+      text = ~name,
+      hoverinfo = "text",
+      showlegend = FALSE,
+    ) %>%
+    config(displayModeBar = FALSE,
+           mapboxAccessToken = mapbox_token)
 })

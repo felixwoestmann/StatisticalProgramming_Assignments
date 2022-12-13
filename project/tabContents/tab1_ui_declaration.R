@@ -16,6 +16,11 @@ popularStationsPanel <- function() {
              wellPanel(
                h2('Instructions'),
                p("This tab allows the user to interactively analyze data about the most popular stations."),
+               p("To analyze the data we counted occurences of each station in the dataset as a start and end station
+                and combined those number"),
+               p("The user can select the number of stations to be displayed in the barplot and the map. The slider
+               has an animation button. The map
+                shows the stations as markers and the number of occurences the area of the circle."),
                h3('Select number of stations to display'),
                sliderInput('popularStattionsNumberOfStations',
                            label = "Number of stations",
@@ -52,7 +57,11 @@ overhangPanel <- function() {
                     column(6,
                            h3("Overview of overhang of station usage"),
                            plotOutput("popularStationsOverhangPlot")),
-
+                    column(6,
+                           h3("Map of stations with the biggest overhang"),
+                           plotlyOutput("popularStationsOverhangMap",
+                                        height = "100%",
+                                        width = "100%"))
                   ),
   )
   )
