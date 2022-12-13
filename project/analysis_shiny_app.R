@@ -59,8 +59,8 @@ ui <- fluidPage(
                wellPanel(
                  h2('Instructions'),
                  p("This tab allows the user to interactively analyze data about the average distance of bicikelj travels"),
-                shiny::tags$li('In the first step the user can filter the data based on good weather (no rain and more than 5.3C temparature)
-                               or bad weather (either rain, below 5.3C temparature, or both). '),
+                shiny::tags$li('In the first step the user can filter the data based on good weather (no rain and more than 5.3C temperature)
+                               or bad weather (either rain, below 5.3C temperature, or both). '),
                 shiny::tags$li('In the second step the user can filter the data based on the day of the week.')),
                  
                sidebarPanel(
@@ -101,18 +101,22 @@ server <- function(input, output) {
     showBadweather <- input$showBadweather
 
     disdata$goodweather <- as.factor(disdata$goodweather)
+    # daytime <- disdata$hour
 
     disdata <- disdata %>%
       filter(disdata$goodweather == "FALSE" & showBadweather == TRUE |
                disdata$goodweather == "TRUE" & showGoodweather == TRUE)
 
-    
     ggplot() +
         geom_bar(data = disdata %>%
         group_by(hour) %>%
         summarise(meandistance = mean(distance_meters)),
                aes(y = meandistance, x = hour),
-               stat = "identity")
+               stat = "identity")+
+        coord_cartesian(xlim = NULL, ylim = c(0, 3000), default = TRUE)
+      # scale_color_manual(aesthetics = "fill",
+      #                    values = c("Weekday" = wes_palette("Darjeeling1")[1],
+      #                               "Weekend" = wes_palette("Darjeeling1")[2]))
   })
 
 
@@ -136,7 +140,8 @@ server <- function(input, output) {
         group_by(hour) %>%
         summarise(meandistance = mean(distance_meters)),
                aes(y = meandistance, x = hour),
-               stat = "identity")
+               stat = "identity")+
+      coord_cartesian(xlim = NULL, ylim = c(0, 3000), default = TRUE)
   })
 }
 
