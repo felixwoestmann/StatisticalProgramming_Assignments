@@ -229,6 +229,8 @@ output$ridgePlot <- renderPlot({
 
   ggplot(journeys_ridge, aes(x = hour, y = name, fill = name, height = ..density..)) +
     geom_density_ridges(stat = "density", trim = TRUE) +
+    scale_fill_cyclical(name = "Cycle", guide = "legend",
+                      values =wes_palette("Darjeeling1")) +
     scale_x_continuous(breaks = seq(0, 23, 1),
                        limits = c(0, 23),
                        expand = c(0, 0),
