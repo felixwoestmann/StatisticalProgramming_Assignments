@@ -50,6 +50,7 @@ isShowWeekday <- function(vector) {
 }
 
 toPercent <- function(x) { format(paste0(x, "%")) }
+toHour <- function(x) { format(paste0(x, ":00")) }
 
 getOverhangStationData <- function(x) {
   start_station_counts <- x %>%
@@ -214,23 +215,11 @@ output$ridgePlot <- renderPlot({
   journeys_ridge <- journeys %>%
     select(station_start, hour)
 
-  # get median of popular stations by hour
-  distribution <- journeys_ridge %>%
-    group_by(hour, station_start) %>%
-    summarise(n = n())
+  # only select 5 stations
+  station_numbers <- c(1, 2, 3, 4, 5, 6, 7, 8)
+  journeys_ridge <- journeys_ridge %>%
+    filter(station_start %in% station_numbers)
 
-
-  if (input$ridgeSortingStat == 1) {
-    #median
-  } else if (input$ridgeSortingStat == 2) {
-    #mean
-  } else if (input$ridgeSortingStat == 3) {
-    # mode
-  }
-
-  distribution <- distribution %>%
-    arrange(desc(sort_stat)) %>%
-    head(input$ridgeNumberOfStations)
 
   # add names of stations
   journeys_ridge <- merge(journeys_ridge,
@@ -238,18 +227,15 @@ output$ridgePlot <- renderPlot({
                           by.x = "station_start",
                           by.y = "number")
 
-  # add mean hour of station
-  journeys_ridge <- merge(journeys_ridge,
-                          distribution,
-                          by.x = "station_start",
-                          by.y = "station_start")
-
-  # Convert journeys_ridge name to factor
-  journeys_ridge$name <- as.factor(journeys_ridge$name)
-
-
-  ggplot(journeys_ridge, aes(x = hour, y = name, height = ..density..)) +
+  ggplot(journeys_ridge, aes(x = hour, y = name, fill = name, height = ..density..)) +
     geom_density_ridges(stat = "density", trim = TRUE) +
-    scale_x_continuous(breaks = seq(0, 24, 2)) +
-    theme(legend.position = "none")
+    scale_x_continuous(breaks = seq(0, 23, 1),
+                       limits = c(0, 23),
+                       expand = c(0, 0),
+                       labels = toHour(seq(0, 23, 1))) +
+    labs(x = "Hour of the day", y = "") +
+    theme_minimal() +
+    theme(axis.text = element_text(size = 10),
+          legend.position = "none")
+
 })
