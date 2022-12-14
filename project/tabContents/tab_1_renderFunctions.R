@@ -25,6 +25,8 @@ getPopularStationData <- function(x) {
   return(popular_stations)
 }
 
+mode <- function(codes) { which.max(tabulate(codes)) }
+
 getVectorOfColorsForBarplot <- function(x) {
 
   if (length(x) %% 2 == 0) {
@@ -190,11 +192,23 @@ output$ridgePlot <- renderPlot({
   journeys_ridge <- journeys %>%
     select(station_start, hour)
 
-  # only select 5 stations
-  station_numbers <- c(1, 2, 3, 4,5,6,7,8)
-  journeys_ridge <- journeys_ridge %>%
-    filter(station_start %in% station_numbers)
+  # get median of popular stations by hour
+  distribution <- journeys_ridge %>%
+    group_by(hour, station_start) %>%
+    summarise(n = n())
 
+
+  if (input$ridgeSortingStat == 1) {
+    #median
+  } else if (input$ridgeSortingStat == 2) {
+    #mean
+  } else if (input$ridgeSortingStat == 3) {
+    # mode
+  }
+
+  distribution <- distribution %>%
+    arrange(desc(sort_stat)) %>%
+    head(input$ridgeNumberOfStations)
 
   # add names of stations
   journeys_ridge <- merge(journeys_ridge,
@@ -202,8 +216,18 @@ output$ridgePlot <- renderPlot({
                           by.x = "station_start",
                           by.y = "number")
 
-  ggplot(journeys_ridge, aes(x = hour, y = name,fill=name)) +
-    geom_density_ridges() +
+  # add mean hour of station
+  journeys_ridge <- merge(journeys_ridge,
+                          distribution,
+                          by.x = "station_start",
+                          by.y = "station_start")
+
+  # Convert journeys_ridge name to factor
+  journeys_ridge$name <- as.factor(journeys_ridge$name)
+
+
+  ggplot(journeys_ridge, aes(x = hour, y = name, height = ..density..)) +
+    geom_density_ridges(stat = "density", trim = TRUE) +
     scale_x_continuous(breaks = seq(0, 24, 2)) +
     theme(legend.position = "none")
 })
