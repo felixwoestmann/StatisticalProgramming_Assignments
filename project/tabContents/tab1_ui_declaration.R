@@ -21,20 +21,33 @@ popularStationsPanel <- function() {
                p("The user can select the number of stations to be displayed in the barplot and the map. The slider
                has an animation button. The map
                 shows the stations as markers and the number of occurences the area of the circle."),
-               h3('Select number of stations to display'),
-               sliderInput('popularStattionsNumberOfStations',
-                           label = "Number of stations",
-                           min = 1, max = 84, value = 10,
-                           animate = TRUE),),
-             fluidRow(
-               column(6,
-                      h3("Overview of most popular stations"),
-                      plotOutput("popularStattionsOverviewPlot")),
-               column(6,
-                      h3("Map of most popular stations"),
-                      plotlyOutput("popularStationsMapOverview",
-                                   height = "100%",
-                                   width = "100%"))
+               fluidRow(
+                 column(8,
+                        sliderInput('popularStattionsNumberOfStations',
+                                    label = "Number of stations",
+                                    min = 1, max = 84, value = 10,
+                                    animate = TRUE),
+                 ),
+                 column(4,
+                        checkboxGroupButtons('popularStationsWeekdayWeekend',
+                                             label = "Weekday / Weekend",
+                                             choices = list('Show weekend' = 'weekend',
+                                                            'Show weekday' = 'weekday'),
+                                             selected = c('weekend', 'weekday'),
+                                             direction = 'vertical',
+                                             individual = TRUE),
+                 ),
+               ),
+               fluidRow(
+                 column(6,
+                        h3("Overview of most popular stations"),
+                        plotOutput("popularStattionsOverviewPlot")),
+                 column(6,
+                        h3("Map of most popular stations"),
+                        plotlyOutput("popularStationsMapOverview",
+                                     height = "100%",
+                                     width = "100%"))
+               )
              )
     )
   )
@@ -72,11 +85,17 @@ overhangPanel <- function() {
 
 ridgePlotPanel <- function() {
   return(
-    tabPanel("Ridgeardson",
+    tabPanel("Distribution of station usage",
+             selectInput("ridgeSortingStat",
+                         label = h3("Select Sorting statistic:"),
+                         choices = list("Mean" = 1, "Median" = 2, "Mode" = 3),
+                         selected = 1),
+             sliderInput('ridgeNumberOfStations',
+                         label = "Number of stations",
+                         min = 1, max = 84, value = 5),
              plotOutput("ridgePlot",
                         height = "650px",
                         width = "100%")
+    )
   )
-
-)
 }

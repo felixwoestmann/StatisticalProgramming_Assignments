@@ -1,3 +1,4 @@
+library(tidyverse)
 library(shiny)
 library(shinyWidgets)
 library(RSQLite)
@@ -65,7 +66,7 @@ ui <- fluidPage(
 
 # SERVER
 
-server <- function(input, output) {
+server <- function(input, output,session) {
 
   source('tabContents/tab_1_renderFunctions.R', local = TRUE)
   source('tabContents/tab2_renderFunctions.R', local = TRUE)
