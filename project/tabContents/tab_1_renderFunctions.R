@@ -215,10 +215,13 @@ output$ridgePlot <- renderPlot({
   journeys_ridge <- journeys %>%
     select(station_start, hour)
 
-  # only select 5 stations
-  station_numbers <- c(1, 2, 3, 4, 5, 6, 7, 8)
+  popular_stations <- getPopularStationData(journeys) %>%
+    arrange(desc(n)) %>%
+    head(input$ridgeNumberOfStations) %>%
+    select(station)
+
   journeys_ridge <- journeys_ridge %>%
-    filter(station_start %in% station_numbers)
+    filter(station_start %in% popular_stations$station)
 
 
   # add names of stations
@@ -230,7 +233,7 @@ output$ridgePlot <- renderPlot({
   ggplot(journeys_ridge, aes(x = hour, y = name, fill = name, height = ..density..)) +
     geom_density_ridges(stat = "density", trim = TRUE) +
     scale_fill_cyclical(name = "Cycle", guide = "legend",
-                      values =wes_palette("Darjeeling1")) +
+                        values = wes_palette("Darjeeling1")) +
     scale_x_continuous(breaks = seq(0, 23, 1),
                        limits = c(0, 23),
                        expand = c(0, 0),
