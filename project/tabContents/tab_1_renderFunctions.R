@@ -93,7 +93,12 @@ output$popularStattionsOverviewPlot <- renderPlot({
   numberOfStations <- 10
   numberOfStations <- input$popularStattionsNumberOfStations
 
-  popular_stations <- getPopularStationData(journeys) %>%
+  # Filter journeys for weekends and weekday
+  journeys_filtered <- journeys %>%
+    filter((is_weekend == TRUE & isShowWeekend(input$popularStationsWeekdayWeekend) == TRUE)
+             | (is_weekend == FALSE & isShowWeekday(input$popularStationsWeekdayWeekend) == TRUE))
+
+  popular_stations <- getPopularStationData(journeys_filtered) %>%
     arrange(desc(n)) %>%
     head(numberOfStations)
 
@@ -107,7 +112,7 @@ output$popularStationsMapOverview <- renderPlotly({
   numberOfStations <- 10
   numberOfStations <- input$popularStattionsNumberOfStations
 
-  popular_stations <- getPopularStationData(journeys) %>%
+  # Filter journeys for weekends and weekday
   journeys_filtered <- journeys %>%
     filter((is_weekend == TRUE & isShowWeekend(input$popularStationsWeekdayWeekend) == TRUE)
              | (is_weekend == FALSE & isShowWeekday(input$popularStationsWeekdayWeekend) == TRUE))
