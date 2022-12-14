@@ -37,6 +37,18 @@ getVectorOfColorsForBarplot <- function(x) {
   }
 }
 
+isShowWeekend <- function(vector) {
+  showWeekend <- FALSE
+  if ("weekend" %in% vector) { showWeekend <- TRUE }
+  return(showWeekend)
+}
+
+isShowWeekday <- function(vector) {
+  showWeekday <- FALSE
+  if ("weekday" %in% vector) { showWeekday <- TRUE }
+  return(showWeekday)
+}
+
 toPercent <- function(x) { format(paste0(x, "%")) }
 
 getOverhangStationData <- function(x) {
@@ -96,6 +108,11 @@ output$popularStationsMapOverview <- renderPlotly({
   numberOfStations <- input$popularStattionsNumberOfStations
 
   popular_stations <- getPopularStationData(journeys) %>%
+  journeys_filtered <- journeys %>%
+    filter((is_weekend == TRUE & isShowWeekend(input$popularStationsWeekdayWeekend) == TRUE)
+             | (is_weekend == FALSE & isShowWeekday(input$popularStationsWeekdayWeekend) == TRUE))
+
+  popular_stations <- getPopularStationData(journeys_filtered) %>%
     arrange(desc(n)) %>%
     head(numberOfStations)
 
