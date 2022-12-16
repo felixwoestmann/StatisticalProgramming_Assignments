@@ -86,10 +86,6 @@ overhangPanel <- function() {
 ridgePlotPanel <- function() {
   return(
     tabPanel("Distribution of station usage",
-             selectInput("ridgeSortingStat",
-                         label = h3("Select Sorting statistic:"),
-                         choices = list("Mean" = 1, "Median" = 2, "Mode" = 3),
-                         selected = 1),
              sliderInput('ridgeNumberOfStations',
                          label = "Number of stations",
                          min = 1, max = 84, value = 5),
